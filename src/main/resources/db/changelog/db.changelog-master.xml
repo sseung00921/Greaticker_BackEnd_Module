@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Create users table -->
+    <changeSet id="1" author="sseung00921">
+        <createTable tableName="users">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="auth_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sticker_inventory" type="varchar(255)" defaultValue="[]">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hit_favorite_list" type="varchar(255)" defaultValue="[]">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Create project table -->
+    <changeSet id="2" author="sseung00921">
+        <createTable tableName="project">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kind" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_date" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="day_in_a_row" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="project"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Add foreign key constraint for project.user_id referencing users.id -->
+    <changeSet id="3" author="sseung00921">
+        <addForeignKeyConstraint baseTableName="project"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_project_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="project" constraintName="fk_project_user"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Create history table -->
+    <changeSet id="4" author="sseung00921">
+        <createTable tableName="history">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="project_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sticker_id" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="kind" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="history"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Add foreign key constraint for history.user_id referencing users.id -->
+    <changeSet id="5" author="sseung00921">
+        <addForeignKeyConstraint baseTableName="history"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_history_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="history" constraintName="fk_history_user"/>
+        </rollback>
+    </changeSet>
+
+    <!--2024-08-24-->
+    <!--아래 3개의 changeSet은 각각의 테이블의 primary key에 auto increment를 적용하는 것-->
+    <changeSet id="6" author="sseung00921">
+        <preConditions onFail="HALT">
+            <and>
+                <columnExists tableName="users" columnName="id"/>
+            </and>
+        </preConditions>
+
+        <dropForeignKeyConstraint baseTableName="project" constraintName="fk_project_user"/>
+        <dropForeignKeyConstraint baseTableName="history" constraintName="fk_history_user"/>
+        <sql>
+            ALTER TABLE users MODIFY COLUMN id INT AUTO_INCREMENT;
+        </sql>
+        <addForeignKeyConstraint baseTableName="project"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_project_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="history"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_history_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="project" constraintName="fk_project_user"/>
+            <dropForeignKeyConstraint baseTableName="history" constraintName="fk_history_user"/>
+            <sql>
+                ALTER TABLE users MODIFY COLUMN id INT;
+            </sql>
+            <addForeignKeyConstraint baseTableName="project"
+                                     baseColumnNames="user_id"
+                                     constraintName="fk_project_user"
+                                     referencedTableName="users"
+                                     referencedColumnNames="id"
+                                     onDelete="CASCADE"/>
+            <addForeignKeyConstraint baseTableName="history"
+                                     baseColumnNames="user_id"
+                                     constraintName="fk_history_user"
+                                     referencedTableName="users"
+                                     referencedColumnNames="id"
+                                     onDelete="CASCADE"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="7" author="sseung00921">
+        <preConditions onFail="HALT">
+            <and>
+                <columnExists tableName="project" columnName="id"/>
+            </and>
+        </preConditions>
+
+        <sql>
+            ALTER TABLE project MODIFY COLUMN id INT AUTO_INCREMENT;
+        </sql>
+
+        <rollback>
+            <sql>
+                ALTER TABLE project MODIFY COLUMN id INT;
+            </sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="8" author="sseung00921">
+        <preConditions onFail="HALT">
+            <and>
+                <columnExists tableName="history" columnName="id"/>
+            </and>
+        </preConditions>
+
+        <sql>
+            ALTER TABLE history MODIFY COLUMN id INT AUTO_INCREMENT;
+        </sql>
+
+        <rollback>
+             <sql>
+                 ALTER TABLE history MODIFY COLUMN id INT;
+             </sql>
+        </rollback>
+    </changeSet>
+
+    <!--프로젝트 테이블의 kind 칼럼의 이름을 state 칼럼으로 변경 -->
+    <changeSet id="9" author="sseung00921">
+        <renameColumn tableName="project"
+                      oldColumnName="kind"
+                      newColumnName="state"
+                      columnDataType="varchar(255)"/>
+        <rollback>
+            <renameColumn tableName="project"
+                          oldColumnName="state"
+                          newColumnName="kind"
+                          columnDataType="varchar(255)"/>
+        </rollback>
+    </changeSet>
+
+    <!--아래 3개의 changeSet은 각각의 테이블에 CreatedDateTime과 UpdatedDateTime을 추가한 것-->
+    <changeSet id="10" author="sseung00921">
+        <addColumn tableName="users">
+            <column name="created_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="users" columnName="created_date_time"/>
+            <dropColumn tableName="users" columnName="updated_date_time"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="11" author="sseung00921">
+        <addColumn tableName="project">
+            <column name="created_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="project" columnName="created_date_time"/>
+            <dropColumn tableName="project" columnName="updated_date_time"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="12" author="sseung00921">
+        <addColumn tableName="history">
+            <column name="created_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="history" columnName="created_date_time"/>
+            <dropColumn tableName="history" columnName="updated_date_time"/>
+        </rollback>
+    </changeSet>
+
+    <!--history 테이블에 project_name 칼럼과 day_in_a_row 칼럼을 추가하고 project_id 칼럼은 삭제함 -->
+    <changeSet id="13" author="sseung00921">
+        <dropColumn tableName="history" columnName="project_id"/>
+        <addColumn tableName="history">
+            <column name="project_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="history">
+            <column name="day_in_a_row" type="int">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <addColumn tableName="history">
+                <column name="project_id" type="int">
+                    <constraints nullable="false"/>
+                </column>
+            </addColumn>
+            <dropColumn tableName="history" columnName="project_name"/>
+            <dropColumn tableName="history" columnName="day_in_a_row"/>
+        </rollback>
+    </changeSet>
+
+    <!-- users, history, project 테이블의 primary key 타입을 int에서 bigint로 변경 -->
+    <changeSet id="14" author="sseung00921">
+        <modifyDataType tableName="users" columnName="id" newDataType="bigint"/>
+        <rollback>
+            <modifyDataType tableName="users" columnName="id" newDataType="int"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="15" author="sseung00921">
+        <modifyDataType tableName="history" columnName="id" newDataType="bigint"/>
+        <rollback>
+            <modifyDataType tableName="history" columnName="id" newDataType="int"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="16" author="sseung00921">
+        <modifyDataType tableName="project" columnName="id" newDataType="bigint"/>
+        <rollback>
+            <modifyDataType tableName="project" columnName="id" newDataType="int"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="17" author="sseung00921">
+        <modifyDataType tableName="history" columnName="sticker_id" newDataType="bigint"/>
+        <rollback>
+            <modifyDataType tableName="history" columnName="sticker_id" newDataType="int"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="18" author="sseung00921">
+        <modifyDataType tableName="history" columnName="user_id" newDataType="bigint"/>
+        <rollback>
+            <modifyDataType tableName="history" columnName="user_id" newDataType="int"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="19" author="sseung00921">
+        <modifyDataType tableName="project" columnName="user_id" newDataType="bigint"/>
+        <rollback>
+            <modifyDataType tableName="project" columnName="user_id" newDataType="int"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,18 @@
+---- Sample data for users table
+--INSERT INTO users (auth_id, sticker_inventory, hit_favorite_list) VALUES ('auth001', '[]', '[]');
+--INSERT INTO users (auth_id, sticker_inventory, hit_favorite_list) VALUES ('auth002', '[]', '[]');
+--
+---- Sample data for project table
+--INSERT INTO project (user_id, kind, name, start_date, day_in_a_row) VALUES (1, 'IN_PROGRESS', '앱 만들기1', NOW(), 15);
+--INSERT INTO project (user_id, kind, name, start_date, day_in_a_row) VALUES (1, 'COMPLETED', '앱 만들기2', NOW(), 0);
+--INSERT INTO project (user_id, kind, name, start_date, day_in_a_row) VALUES (1, 'NO_EXIST', '앱 만들기3', NOW(), 0);
+--INSERT INTO project (user_id, kind, name, start_date, day_in_a_row) VALUES (1, 'RESET', '앱 만들기4', NOW(), 0);
+--INSERT INTO project (user_id, kind, name, start_date, day_in_a_row) VALUES (2, 'IN_PROGRESS', '매일 만보 걷기', NOW(), 0);
+--
+---- Sample data for history table
+--INSERT INTO history (user_id, project_id, sticker_id, kind) VALUES (1, 1, 15, 'GET_STICKER');
+--INSERT INTO history (user_id, project_id, kind) VALUES (1, 2, 'ACCOMPLISH_GOAL');
+--INSERT INTO history (user_id, project_id, kind) VALUES (1, 3, 'DELETE_GOAL');
+--INSERT INTO history (user_id, project_id, kind) VALUES (1, 4, 'START_GOAL');
+--INSERT INTO history (user_id, project_id, kind) VALUES (1, 5, 'RESET_GOAL');
+--INSERT INTO history (user_id, project_id, kind) VALUES (2, 2, 'START_GOAL');
