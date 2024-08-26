@@ -1,4 +1,4 @@
-package com.greaticker.demo.dto.response.common;
+package com.greaticker.demo.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -6,15 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CursorPaginationDto<T> {
-    private CursorPaginationMeta meta;
-    private List<T> data;
+public class PaginationParam {
+    private int count;
+    private Long after;
 }
-

@@ -315,4 +315,61 @@
             <modifyDataType tableName="project" columnName="user_id" newDataType="int"/>
         </rollback>
     </changeSet>
+
+    <!-- 2024/08/26-->
+    <!-- 아래 3개는 다시 BigInt로 바꾼 다음에 풀려버린 auto_increment를 다시 적용하는 것-->
+    <changeSet id="20" author="sseung00921">
+        <preConditions onFail="HALT">
+            <and>
+                <columnExists tableName="users" columnName="id"/>
+            </and>
+        </preConditions>
+
+        <sql>
+            ALTER TABLE users MODIFY COLUMN id BIGINT AUTO_INCREMENT;
+        </sql>
+
+        <rollback>
+            <sql>
+                ALTER TABLE users MODIFY COLUMN id BIGINT;
+            </sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="21" author="sseung00921">
+        <preConditions onFail="HALT">
+            <and>
+                <columnExists tableName="project" columnName="id"/>
+            </and>
+        </preConditions>
+
+        <sql>
+            ALTER TABLE project MODIFY COLUMN id BIGINT AUTO_INCREMENT;
+        </sql>
+
+        <rollback>
+            <sql>
+                ALTER TABLE project MODIFY COLUMN id BIGINT;
+            </sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="22" author="sseung00921">
+        <preConditions onFail="HALT">
+            <and>
+                <columnExists tableName="history" columnName="id"/>
+            </and>
+        </preConditions>
+
+        <sql>
+            ALTER TABLE history MODIFY COLUMN id BIGINT AUTO_INCREMENT;
+        </sql>
+
+        <rollback>
+            <sql>
+                ALTER TABLE history MODIFY COLUMN id BIGINT;
+            </sql>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>
