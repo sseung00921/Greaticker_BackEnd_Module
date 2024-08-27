@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -27,5 +28,11 @@ public class User extends BaseEntity implements Serializable {
 
     @Column(name = "hit_favorite_list", nullable = false, columnDefinition = "varchar(255) default '[]'")
     private String hitFavoriteList;
+
+    @Column(name = "last_Get", nullable = true)
+    private LocalDateTime lastGet;
+
+    @Column(name = "now_project_id", nullable = true)
+    private Long nowProjectId;
 
 }

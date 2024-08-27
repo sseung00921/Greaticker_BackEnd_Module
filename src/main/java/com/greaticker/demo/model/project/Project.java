@@ -4,6 +4,7 @@ import com.greaticker.demo.constants.enums.project.ProjectState;
 import com.greaticker.demo.model.common.BaseEntity;
 import com.greaticker.demo.model.user.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Project extends BaseEntity implements Serializable {
 
     @Id
@@ -25,8 +27,11 @@ public class Project extends BaseEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private ProjectState state;
 
+    @Column(name = "name", nullable = false)
+    private String name;
+
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime project_id;
+    private LocalDateTime start_date;
 
     @Column(name = "day_in_a_row", nullable = false)
     private Integer day_in_a_row;
@@ -35,4 +40,7 @@ public class Project extends BaseEntity implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    public void plusDayInARow() {
+        this.day_in_a_row += 1;
+    }
 }

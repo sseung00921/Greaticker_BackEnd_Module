@@ -1,4 +1,4 @@
-package com.greaticker.demo.dto.request;
+package com.greaticker.demo.dto.request.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

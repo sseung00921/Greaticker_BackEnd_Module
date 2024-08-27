@@ -4,6 +4,7 @@ import com.greaticker.demo.constants.enums.history.HistoryKind;
 import com.greaticker.demo.model.common.BaseEntity;
 import com.greaticker.demo.model.user.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class History extends BaseEntity implements Serializable {
 
     @Id
