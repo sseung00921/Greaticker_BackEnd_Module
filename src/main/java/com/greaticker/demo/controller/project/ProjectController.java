@@ -7,6 +7,8 @@ import com.greaticker.demo.dto.response.common.ApiResponse;
 import com.greaticker.demo.dto.response.project.ProjectResponse;
 import com.greaticker.demo.service.project.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,21 +19,21 @@ public class ProjectController {
     final ProjectService projectService;
 
     @GetMapping("/project")
-    public ApiResponse<ProjectResponse> getProject() {
+    public ResponseEntity<ApiResponse<ProjectResponse>> getProject() {
         ProjectResponse fetchedData = projectService.getProject();
-        return new ApiResponse<>(true, null, fetchedData);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, fetchedData));
     }
 
     @PostMapping("/project")
-    public ApiResponse<String> updateProject(@RequestBody ProjectRequest projectRequest) {
+    public ResponseEntity<ApiResponse<String>> updateProject(@RequestBody ProjectRequest projectRequest) {
         String fetchedData = projectService.updateProject(projectRequest);
-        return new ApiResponse<>(true, null, fetchedData);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, fetchedData));
     }
 
     @PostMapping("/get-sticker")
-    public ApiResponse<String> getNewSticker() throws JsonProcessingException {
+    public ResponseEntity<ApiResponse<String>> getNewSticker() throws JsonProcessingException {
         String fetchedStickerId = projectService.getNewSticker();
-        return new ApiResponse<>(true, null, fetchedStickerId);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, fetchedStickerId));
     }
 
 }
