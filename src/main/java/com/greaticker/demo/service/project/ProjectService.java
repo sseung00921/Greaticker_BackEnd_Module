@@ -49,13 +49,14 @@ public class ProjectService {
     public String getNewSticker() throws JsonProcessingException {
         User user = userRepository.findById(1L).get();
 
-        LocalDate lastStickerGotDay = user.getLastGet().toLocalDate();
+        LocalDate lastStickerGotDay = user.getLastGet() == null ? LocalDate.EPOCH: user.getLastGet().toLocalDate();
         LocalDate today = LocalDateTime.now().toLocalDate();
         if (lastStickerGotDay.isBefore(today)) {
             String stickerInveotoryStr = user.getStickerInventory();
+            System.out.println(stickerInveotoryStr);
             List<String> stickerInventoryList = objectMapper.readValue(stickerInveotoryStr, new TypeReference<List<String>>() {
             });
-
+            System.out.println(stickerInventoryList);
             String gotStickerId = getRandomSticker(TOTAL_STICKER_CNT, stickerInventoryList);
 
             stickerInventoryList.add(gotStickerId);
@@ -70,7 +71,6 @@ public class ProjectService {
             Project fetchedProject = fetchedData.get();
             fetchedProject.plusDayInARow();
             historyRepository.save(new History(null, HistoryKind.GET_STICKER, fetchedProject.getName(), fetchedProject.getDay_in_a_row(), Long.valueOf(gotStickerId), user));
-
             return gotStickerId;
         } else {
             throw new TodayStickerAlreadyGotException("TODAY_STICKER_ALREADY_GOT");
@@ -91,22 +91,24 @@ public class ProjectService {
             historyRepository.save(new History(null, HistoryKind.START_GOAL, newProject.getName(), newProject.getDay_in_a_row(), null, user));
             return StringConverter.longToStringConvert(newProject.getId());
         } else if (prevState == ProjectState.IN_PROGRESS && nextState == ProjectState.COMPLETED) {
-            Optional<Project> fetchedData = projectRepository.findById(projectRequest.getProjectId());
+            Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
             if (fetchedData.isEmpty()) throw new RuntimeException("Fetched Project Cannot Be Empty Since prevState is In Progess");
             Project fetchedProject = fetchedData.get();
             fetchedProject.setState(projectRequest.getNextProjectState());
             historyRepository.save(new History(null, HistoryKind.ACCOMPLISH_GOAL, fetchedProject.getName(), fetchedProject.getDay_in_a_row(), null, user));
             return StringConverter.longToStringConvert(fetchedProject.getId());
         } else if (prevState == ProjectState.IN_PROGRESS && nextState == ProjectState.NO_EXIST) {
-            Optional<Project> fetchedData = projectRepository.findById(projectRequest.getProjectId());
+            Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
             if (fetchedData.isEmpty()) throw new RuntimeException("Fetched Project Cannot Be Empty Since prevState is In Progess");
             Project fetchedProject = fetchedData.get();
             projectRepository.delete(fetchedProject);
             user.setNowProjectId(null);
+            user.setLastGet(null);
+            user.setStickerInventory("[]");
             historyRepository.save(new History(null, HistoryKind.DELETE_GOAL, fetchedProject.getName(), null, null, user));
             return StringConverter.longToStringConvert(fetchedProject.getId());
         } else if (prevState == ProjectState.COMPLETED && nextState == ProjectState.IN_PROGRESS){
-            Optional<Project> fetchedData = projectRepository.findById(projectRequest.getProjectId());
+            Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
             if (fetchedData.isEmpty()) throw new RuntimeException("Fetched Project Cannot Be Empty Since prevState is Completed");
             Project fetchedProject = fetchedData.get();
             projectRepository.delete(fetchedProject);
@@ -114,6 +116,8 @@ public class ProjectService {
             checkNamingRule(requestedProjectName);
             Project newProject = projectRepository.save(new Project(null, ProjectState.IN_PROGRESS, requestedProjectName, LocalDateTime.now(), 0, user));
             user.setNowProjectId(newProject.getId());
+            user.setLastGet(null);
+            user.setStickerInventory("[]");
             historyRepository.save(new History(null, HistoryKind.START_GOAL, newProject.getName(), newProject.getDay_in_a_row(), null, user));
             return StringConverter.longToStringConvert(newProject.getId());
         } else {
@@ -144,7 +148,6 @@ public class ProjectService {
         List<Integer> excludedNumbers = stickerInventoryList.stream()
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
-
         // 전체 스티커 번호 목록 생성
         List<Integer> availableStickers = new ArrayList<>();
         for (int i = 1; i <= total_cnt; i++) {
@@ -152,7 +155,6 @@ public class ProjectService {
                 availableStickers.add(i);
             }
         }
-
         // availableStickers에서 랜덤하게 하나 선택
         if (availableStickers.isEmpty()) {
             throw new IllegalArgumentException("No available stickers to choose from.");
