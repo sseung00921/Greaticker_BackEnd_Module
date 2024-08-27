@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HistoryResponseDto {
+public class HistoryResponse {
     private String id;
     private HistoryKind historyKind;
     private String projectName;
@@ -25,8 +25,8 @@ public class HistoryResponseDto {
     private LocalDateTime createdDateTime;
     private LocalDateTime updatedDateTime;
 
-    public static HistoryResponseDto fromEntity(History entity) {
-        return new HistoryResponseDto(StringConverter.longToStringConvert(entity.getId()), entity.getKind(), entity.getProject_name(),
+    public static HistoryResponse fromEntity(History entity) {
+        return new HistoryResponse(StringConverter.longToStringConvert(entity.getId()), entity.getKind(), entity.getProject_name(),
                 StringConverter.longToStringConvert(entity.getSticker_id()), entity.getDay_in_a_row(), entity.getCreatedDateTime(), entity.getUpdatedDateTime());
     }
 }

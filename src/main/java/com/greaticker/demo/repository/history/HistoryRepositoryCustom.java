@@ -1,6 +1,6 @@
 package com.greaticker.demo.repository.history;
 
-import com.greaticker.demo.dto.request.PaginationParam;
+import com.greaticker.demo.dto.request.common.PaginationParam;
 import com.greaticker.demo.model.history.History;
 
 import java.util.List;

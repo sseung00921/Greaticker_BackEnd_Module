@@ -1,7 +1,7 @@
 package com.greaticker.demo.intergration_test.repository.history;
 
 import com.greaticker.demo.constants.enums.history.HistoryKind;
-import com.greaticker.demo.dto.request.PaginationParam;
+import com.greaticker.demo.dto.request.common.PaginationParam;
 import com.greaticker.demo.model.history.History;
 import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.history.HistoryRepository;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class HistoryRepositoryTest {
 
     @Autowired

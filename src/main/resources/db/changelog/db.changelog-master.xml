@@ -372,4 +372,25 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="23" author="sseung00921">
+        <!-- Add last_get column to users table -->
+        <addColumn tableName="users">
+            <column name="last_get" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <!-- Add now_project_id column to users table -->
+        <addColumn tableName="users">
+            <column name="now_project_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="users" columnName="last_get"/>
+            <dropColumn tableName="users" columnName="now_project_id"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

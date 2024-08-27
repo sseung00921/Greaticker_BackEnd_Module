@@ -1,9 +1,8 @@
 package com.greaticker.demo.intergration_test.service.history;
 
-import com.greaticker.demo.dto.request.PaginationParam;
+import com.greaticker.demo.dto.request.common.PaginationParam;
 import com.greaticker.demo.dto.response.common.CursorPagination;
-import com.greaticker.demo.dto.response.common.CursorPaginationMeta;
-import com.greaticker.demo.dto.response.history.HistoryResponseDto;
+import com.greaticker.demo.dto.response.history.HistoryResponse;
 import com.greaticker.demo.model.history.History;
 import com.greaticker.demo.repository.history.HistoryRepository;
 import com.greaticker.demo.service.history.HistoryService;
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +20,7 @@ import static com.greaticker.demo.constants.pagination.PaginationConstant.DEFAUL
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
 public class HistoryServiceTest {
 
     @Mock
@@ -60,7 +61,7 @@ public class HistoryServiceTest {
         when(historyRepository.findHistoriesAfter(1L, paginationParam)).thenReturn(mockHistories);
 
         // When
-        CursorPagination<HistoryResponseDto> result = historyService.showHistoryOfUser(paginationParam);
+        CursorPagination<HistoryResponse> result = historyService.showHistoryOfUser(paginationParam);
 
         // Then
         assertThat(result.getMeta().isHasMore()).isTrue();
@@ -84,7 +85,7 @@ public class HistoryServiceTest {
         when(historyRepository.findHistoriesAfter(1L, paginationParam)).thenReturn(mockHistories);
 
         // When
-        CursorPagination<HistoryResponseDto> result = historyService.showHistoryOfUser(paginationParam);
+        CursorPagination<HistoryResponse> result = historyService.showHistoryOfUser(paginationParam);
 
         // Then
         assertThat(result.getMeta().isHasMore()).isFalse();

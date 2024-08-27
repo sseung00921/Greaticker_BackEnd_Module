@@ -1,7 +1,7 @@
 package com.greaticker.demo.unit_test.dto.response;
 
 import com.greaticker.demo.constants.enums.history.HistoryKind;
-import com.greaticker.demo.dto.response.history.HistoryResponseDto;
+import com.greaticker.demo.dto.response.history.HistoryResponse;
 import com.greaticker.demo.model.history.History;
 import com.greaticker.demo.utils.StringConverter;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ public class HistoryResponseDtoTest {
         history.setUpdatedDateTime(updatedDateTime);
 
         // When
-        HistoryResponseDto dto = HistoryResponseDto.fromEntity(history);
+        HistoryResponse dto = HistoryResponse.fromEntity(history);
 
         // Then
         assertThat(dto.getId()).isEqualTo(StringConverter.longToStringConvert(id));
