@@ -393,4 +393,51 @@
         </rollback>
     </changeSet>
 
+    <!-- Create users table -->
+    <changeSet id="24" author="sseung00921">
+        <createTable tableName="sticker">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hit_cnt" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="25" author="sseung00921">
+        <!-- Add nickname column to users table -->
+        <addColumn tableName="users">
+            <column name="nickname" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="users" columnName="nickname"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="26" author="sseung00921">
+        <!-- Add nickname column to users table -->
+        <addColumn tableName="sticker">
+            <column name="created_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="sticker" columnName="created_date_time"/>
+            <dropColumn tableName="sticker" columnName="updated_date_time"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

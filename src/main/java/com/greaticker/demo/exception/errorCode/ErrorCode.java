@@ -8,4 +8,6 @@ public class ErrorCode {
     public static final String TOO_SHORT_PROJECT_NAME = "TOO_SHORT_PROJECT_NAME";
     public static final String NOT_ALLOWED_CHARACTER = "NOT_ALLOWED_CHARACTER";
     public static final String TODAY_STICKER_ALREADY_GOT = "TODAY_STICKER_ALREADY_GOT";
+    public static final String CAN_NOT_HIT_FAVORITE_BEFORE_GOT_ALL_STICKER = "CAN_NOT_HIT_FAVORITE_BEFORE_GOT_ALL_STICKER";
+    public static final String OVER_HIT_FAVORITE_LIMIT = "OVER_HIT_FAVORITE_LIMIT";
 }
