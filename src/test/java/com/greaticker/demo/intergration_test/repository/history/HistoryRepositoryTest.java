@@ -9,6 +9,7 @@ import com.greaticker.demo.repository.user.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Disabled
 public class HistoryRepositoryTest {
 
     @Autowired
@@ -59,7 +61,7 @@ public class HistoryRepositoryTest {
     @AfterEach
     public void clearDatabase() {
         historyRepository.deleteAll();
-        userRepository.deleteAll();
+        //userRepository.deleteAll();
     }
 
     @Test

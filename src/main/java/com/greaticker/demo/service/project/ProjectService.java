@@ -53,10 +53,8 @@ public class ProjectService {
         LocalDate today = LocalDateTime.now().toLocalDate();
         if (lastStickerGotDay.isBefore(today)) {
             String stickerInveotoryStr = user.getStickerInventory();
-            System.out.println(stickerInveotoryStr);
             List<String> stickerInventoryList = objectMapper.readValue(stickerInveotoryStr, new TypeReference<List<String>>() {
             });
-            System.out.println(stickerInventoryList);
             String gotStickerId = getRandomSticker(TOTAL_STICKER_CNT, stickerInventoryList);
 
             stickerInventoryList.add(gotStickerId);
