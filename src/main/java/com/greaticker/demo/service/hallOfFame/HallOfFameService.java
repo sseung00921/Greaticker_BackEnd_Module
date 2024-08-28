@@ -1,9 +1,13 @@
 package com.greaticker.demo.service.hallOfFame;
 
+import com.greaticker.demo.dto.request.common.PaginationParam;
 import com.greaticker.demo.dto.request.hallOfFame.HallOfFameDeleteRequest;
 import com.greaticker.demo.dto.request.hallOfFame.HallOfFameRegisterRequest;
 import com.greaticker.demo.dto.request.hallOfFame.HitGoodToProjectRequest;
+import com.greaticker.demo.dto.response.common.CursorPagination;
+import com.greaticker.demo.dto.response.common.CursorPaginationMeta;
 import com.greaticker.demo.dto.response.hallOfFame.HallOfFamePostApiResponse;
+import com.greaticker.demo.dto.response.hallOfFame.HallOfFameResponse;
 import com.greaticker.demo.exception.customException.DuplicatedHallOfFameException;
 import com.greaticker.demo.model.hallOfFame.HallOfFame;
 import com.greaticker.demo.model.project.Project;
@@ -17,8 +21,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import static com.greaticker.demo.constants.pagination.PaginationConstant.DEFAULT_FETCH_COUNT;
 import static com.greaticker.demo.exception.errorCode.ErrorCode.DUPLICATED_HALL_OF_FAME;
 
 @Service
@@ -31,11 +38,38 @@ public class HallOfFameService {
     final HallOfFameRepository hallOfFameRepository;
     final UserHallOfFameHitCntRelationShipRepository userHallOfFameHitCntRelationShipRepository;
 
+    public CursorPagination<HallOfFameResponse> showHallOfFame(PaginationParam paginationParam) throws IllegalAccessException {
+        User user = userRepository.findById(1L).get();
+        List<HallOfFame> fetchedData = hallOfFameRepository.findHallOfFameAfter(paginationParam);
+
+        boolean hasMore = fetchedData.size() > DEFAULT_FETCH_COUNT;
+        if (hasMore) {
+            fetchedData = fetchedData.subList(0, DEFAULT_FETCH_COUNT);
+        }
+
+        List<HallOfFameResponse> HallOfFameResponseList = new ArrayList<>();
+        for (HallOfFame e : fetchedData) {
+            String projectName = getProjectName(e);
+            boolean isWrittenByMe = e.getUser() == user;
+            boolean isHitGoodByMe = userHallOfFameHitCntRelationShipRepository.findByUserAndHallOfFame(user, e).isPresent();
+            HallOfFameResponseList.add(HallOfFameResponse.fromEntity(e, projectName, isWrittenByMe, isHitGoodByMe));
+        }
+        return new CursorPagination<>(new CursorPaginationMeta(DEFAULT_FETCH_COUNT, hasMore), HallOfFameResponseList);
+    }
+
+    private String getProjectName(HallOfFame e) throws IllegalAccessException {
+        Optional<Project> fetchedData = projectRepository.findById(e.getProjectId());
+        if (fetchedData.isEmpty()) {
+            throw new IllegalAccessException("project can not be null since hall of fame was already made with that project");
+        }
+        return fetchedData.get().getName();
+    }
+
     public HallOfFamePostApiResponse registerHallOfFame(HallOfFameRegisterRequest hallOfFameRegisterRequest) {
         User user = userRepository.findById(1L).get();
-        Long projectId = Long.valueOf(hallOfFameRegisterRequest.getProjectId());
-        Optional<Project> checkProjectExist = projectRepository.findById(projectId);
-        if (!checkProjectExist.isEmpty()) {
+        Long projectId = Long.valueOf(user.getNowProjectId());
+        Optional<HallOfFame> checkProjectExist = hallOfFameRepository.findByProjectId(projectId);
+        if (checkProjectExist.isPresent()) {
             throw new DuplicatedHallOfFameException(DUPLICATED_HALL_OF_FAME);
         }
         HallOfFame newlyRegisteredHallOfFame =
@@ -79,4 +113,6 @@ public class HallOfFameService {
 
         return HallOfFamePostApiResponse.fromEntity(hitHallOfFame);
     }
+
+
 }
