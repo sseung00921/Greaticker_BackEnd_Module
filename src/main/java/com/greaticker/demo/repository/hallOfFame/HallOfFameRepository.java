@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface HallOfFameRepository extends JpaRepository<HallOfFame, Long> {
+public interface HallOfFameRepository extends JpaRepository<HallOfFame, Long>, HallOfFameRepositoryCustom {
 
-
+    Optional<HallOfFame> findByProjectId(Long projectId);
 }

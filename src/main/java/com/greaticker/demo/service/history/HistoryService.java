@@ -32,7 +32,7 @@ public class HistoryService {
             fetchedData = fetchedData.subList(0, DEFAULT_FETCH_COUNT);
         }
 
-        List<HistoryResponse> historyResponseDtoList = fetchedData.stream().map(HistoryResponse::fromEntity).toList();
-        return new CursorPagination<>(new CursorPaginationMeta(DEFAULT_FETCH_COUNT, hasMore), historyResponseDtoList);
+        List<HistoryResponse> historyResponseList = fetchedData.stream().map(HistoryResponse::fromEntity).toList();
+        return new CursorPagination<>(new CursorPaginationMeta(DEFAULT_FETCH_COUNT, hasMore), historyResponseList);
     }
 }

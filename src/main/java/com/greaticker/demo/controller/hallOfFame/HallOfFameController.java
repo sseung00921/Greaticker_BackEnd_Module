@@ -8,9 +8,7 @@ import com.greaticker.demo.dto.response.common.ApiResponse;
 import com.greaticker.demo.dto.response.common.CursorPagination;
 import com.greaticker.demo.dto.response.hallOfFame.HallOfFamePostApiResponse;
 import com.greaticker.demo.dto.response.hallOfFame.HallOfFameResponse;
-import com.greaticker.demo.dto.response.history.HistoryResponse;
 import com.greaticker.demo.service.hallOfFame.HallOfFameService;
-import com.greaticker.demo.service.history.HistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +21,11 @@ public class HallOfFameController {
 
     final HallOfFameService hallOfFameService;
 
-//    @GetMapping("/")
-//    public ResponseEntity<ApiResponse<CursorPagination<HallOfFameResponse>>> showHallOfFame(@RequestParam int count, @RequestParam(required = false) Long after) {
-//        CursorPagination<HallOfFameResponse> fetchedData = hallOfFameService.showHallOfFame(new PaginationParam(count, after));
-//        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, fetchedData));
-//    }
+    @GetMapping("/")
+    public ResponseEntity<ApiResponse<CursorPagination<HallOfFameResponse>>> showHallOfFame(@RequestParam int count, @RequestParam(required = false) Long after) throws IllegalAccessException {
+        CursorPagination<HallOfFameResponse> fetchedData = hallOfFameService.showHallOfFame(new PaginationParam(count, after));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, fetchedData));
+    }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<HallOfFamePostApiResponse>> registerHallOfFame(@RequestBody HallOfFameRegisterRequest hallOfFameRegisterRequest) {

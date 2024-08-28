@@ -1,15 +1,15 @@
 package com.greaticker.demo.dto.response.hallOfFame;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.greaticker.demo.dto.response.project.ProjectResponse;
 import com.greaticker.demo.model.hallOfFame.HallOfFame;
-import com.greaticker.demo.model.project.Project;
 import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.utils.StringConverter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -28,12 +28,16 @@ public class HallOfFameResponse {
     // 좋아요 횟수
     private Integer likeCount;
     // 내가 작성한 명전 카드인지 여부
-    private boolean isWrittenByMe;
-    private boolean isHitGoodByMe;
+    private Boolean isWrittenByMe;
+    private Boolean isHitGoodByMe;
+
+    private LocalDateTime createdDateTime;
+    private LocalDateTime updatedDateTime;
 
     public static HallOfFameResponse fromEntity(HallOfFame entity, String projectName, boolean isWrittenByMe, boolean isHitGoodByMe) {
         User user = entity.getUser();
+        String authId = entity.getShowAuthId() == 1 ? user.getAuthId() : null;
         return new HallOfFameResponse(StringConverter.longToStringConvert(entity.getId()), user.getNickname(),
-                user.getAuthId(), projectName, entity.getHitCnt(), isWrittenByMe, isHitGoodByMe);
+                authId, projectName, entity.getHitCnt(), isWrittenByMe, isHitGoodByMe, entity.getCreatedDateTime(), entity.getUpdatedDateTime());
     }
 }
