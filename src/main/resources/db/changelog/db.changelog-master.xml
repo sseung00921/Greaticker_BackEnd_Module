@@ -424,8 +424,8 @@
         </rollback>
     </changeSet>
 
+    <!-- Add createdDateTime and updatedDateTime column to sticker table -->
     <changeSet id="26" author="sseung00921">
-        <!-- Add nickname column to users table -->
         <addColumn tableName="sticker">
             <column name="created_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
@@ -440,4 +440,161 @@
         </rollback>
     </changeSet>
 
+    <!-- Create hall of fame table -->
+    <changeSet id="27" author="sseung00921">
+        <createTable tableName="hall_of_fame">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nickname" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="auth_id" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="project_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hit_cnt" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="hall_of_fame"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Add foreign key constraint for hall of fame.user_id referencing users.id -->
+    <changeSet id="28" author="sseung00921">
+        <addForeignKeyConstraint baseTableName="hall_of_fame"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_hall_of_fame_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="hall_of_fame" constraintName="fk_project_user"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Create user_hall_of_fame table -->
+    <changeSet id="29" author="sseung00921">
+        <createTable tableName="user_hall_of_fame">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hall_of_fame_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="user_hall_of_fame"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Add foreign key constraint for user_hall_of_fame referencing each primary key -->
+    <changeSet id="30" author="sseung00921">
+        <addForeignKeyConstraint baseTableName="user_hall_of_fame"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_user_hall_of_fame_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="user_hall_of_fame"
+                                 baseColumnNames="hall_of_fame_id"
+                                 constraintName="fk_user_hall_of_fame_hall_of_fame"
+                                 referencedTableName="hall_of_fame"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="user_hall_of_fame" constraintName="fk_user_hall_of_fame_user"/>
+            <dropForeignKeyConstraint baseTableName="user_hall_of_fame" constraintName="fk_user_hall_of_fame_hall_of_fame"/>
+        </rollback>
+    </changeSet>
+
+    <!-- remove nickname and auth_id columns in hall_of_fame -->
+    <changeSet id="31" author="sseung00921">
+        <dropColumn tableName="hall_of_fame" columnName="nickname"/>
+        <dropColumn tableName="hall_of_fame" columnName="auth_id"/>
+        <rollback>
+            <addColumn tableName="hall_of_fame">
+                <column name="nickname" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="auth_id" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <!-- Add createdDateTime and updatedDateTime column to user_hall_of_fame table -->
+    <changeSet id="32" author="sseung00921">
+        <addColumn tableName="user_hall_of_fame">
+            <column name="created_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_date_time" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="user_hall_of_fame" columnName="created_date_time"/>
+            <dropColumn tableName="user_hall_of_fame" columnName="updated_date_time"/>
+        </rollback>
+    </changeSet>
+
+    <!-- drop project_name column and add project_id column-->
+    <changeSet id="33" author="sseung00921">
+        <dropColumn tableName="hall_of_fame" columnName="project_name"/>
+        <rollback>
+            <addColumn tableName="hall_of_fame">
+                <column name="project_name" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="34" author="sseung00921">
+        <addColumn tableName="hall_of_fame">
+            <column name="project_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="hall_of_fame" columnName="project_id"/>
+        </rollback>
+    </changeSet>
+    <!--rename user_hall_of_fame Table to user_hall_of_fame_hit_cnt_relationship-->
+    <changeSet id="35" author="sseung00921">
+        <renameTable oldTableName="user_hall_of_fame" newTableName="user_hall_of_fame_hit_cnt_relationship"/>
+        <rollback>
+            <renameTable oldTableName="user_hall_of_fame_hit_cnt_relationship" newTableName="user_hall_of_fame"/>
+        </rollback>
+    </changeSet>
+
+    <!--add show_auth_id column to hall of fame-->
+    <changeSet id="36" author="sseung00921">
+        <addColumn tableName="hall_of_fame">
+            <column name="show_auth_id" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="hall_of_fame" columnName="show_auth_id"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
