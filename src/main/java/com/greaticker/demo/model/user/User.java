@@ -20,6 +20,9 @@ public class User extends BaseEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "nickname", nullable = false)
+    private String nickname;
+
     @Column(name = "auth_id", nullable = false)
     private String authId;
 

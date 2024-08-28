@@ -55,6 +55,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(false, errorMessage, null));
     }
 
+    @ExceptionHandler(DuplicatedHallOfFameException.class)
+    public ResponseEntity<ApiResponse> handleDuplicatedHallOfFameException(DuplicatedHallOfFameException ex, WebRequest request) {
+        String errorMessage = ex.getMessage();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(false, errorMessage, null));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         String errorMessage = ex.getMessage();
