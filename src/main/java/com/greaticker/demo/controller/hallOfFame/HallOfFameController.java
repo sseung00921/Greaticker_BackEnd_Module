@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("hall-of-fame")
 public class HallOfFameController {
 
-    final HallOfFameService hallOfFameService;
+    private final HallOfFameService hallOfFameService;
 
     @GetMapping("/")
     public ResponseEntity<ApiResponse<CursorPagination<HallOfFameResponse>>> showHallOfFame(@RequestParam int count, @RequestParam(required = false) Long after) throws IllegalAccessException {

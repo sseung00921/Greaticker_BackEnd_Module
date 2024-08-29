@@ -12,6 +12,12 @@ public class NamingRule {
         }
     }
 
+    public static void validateNoSpecialCharactersContainingEvenSpace(String value) {
+        if (value.trim().isEmpty() || value.matches(".*[^ㄱ-ㅎ가-힣a-zA-Z0-9].*")) {
+            throw new NotAllowedChracterException(NOT_ALLOWED_CHARACTER);
+        }
+    }
+
     public static int calculateLength(String value) {
         int length = 0;
         for (char c : value.toCharArray()) {

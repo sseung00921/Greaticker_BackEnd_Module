@@ -33,10 +33,10 @@ import static com.greaticker.demo.exception.errorCode.ErrorCode.DUPLICATED_HALL_
 @AllArgsConstructor
 public class HallOfFameService {
 
-    final UserRepository userRepository;
-    final ProjectRepository projectRepository;
-    final HallOfFameRepository hallOfFameRepository;
-    final UserHallOfFameHitCntRelationShipRepository userHallOfFameHitCntRelationShipRepository;
+    private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
+    private final HallOfFameRepository hallOfFameRepository;
+    private final UserHallOfFameHitCntRelationShipRepository userHallOfFameHitCntRelationShipRepository;
 
     public CursorPagination<HallOfFameResponse> showHallOfFame(PaginationParam paginationParam) throws IllegalAccessException {
         User user = userRepository.findById(1L).get();

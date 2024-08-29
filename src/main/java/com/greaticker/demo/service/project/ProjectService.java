@@ -71,7 +71,7 @@ public class ProjectService {
             historyRepository.save(new History(null, HistoryKind.GET_STICKER, fetchedProject.getName(), fetchedProject.getDay_in_a_row(), Long.valueOf(gotStickerId), user));
             return gotStickerId;
         } else {
-            throw new TodayStickerAlreadyGotException("TODAY_STICKER_ALREADY_GOT");
+            throw new TodayStickerAlreadyGotException(TODAY_STICKER_ALREADY_GOT);
         }
     }
 
