@@ -68,13 +68,14 @@ class ProjectServiceTest {
     void testGetNewStickerSuccess() throws JsonProcessingException {
         // Arrange
         user.setLastGet(LocalDateTime.now().minusDays(1));
+        user.setNowProjectId(20L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         Project project = new Project();
         project.setId(1L);
         project.setName("Test Project");
         project.setDay_in_a_row(0);
-        when(projectRepository.findByUserId(user.getId())).thenReturn(Optional.of(project));
+        when(projectRepository.findById(user.getNowProjectId())).thenReturn(Optional.of(project));
 
         // Act
         String gotStickerId = projectService.getNewSticker();
@@ -184,11 +185,13 @@ class ProjectServiceTest {
     @Test
     void testGetProject() {
         // Arrange
+        user.setNowProjectId(20L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         Project existingProject = new Project();
-        existingProject.setId(1L);
+        existingProject.setId(20L);
         existingProject.setName("Existing Project");
         existingProject.setState(ProjectState.IN_PROGRESS);
-        when(projectRepository.findByUserId(1L)).thenReturn(Optional.of(existingProject));
+        when(projectRepository.findById(user.getNowProjectId())).thenReturn(Optional.of(existingProject));
 
         // Act
         ProjectResponse response = projectService.getProject();
@@ -196,13 +199,15 @@ class ProjectServiceTest {
         // Assert
         assertEquals(ProjectState.IN_PROGRESS, response.getProjectStateKind());
         assertEquals("Existing Project", response.getProjectName());
-        verify(projectRepository).findByUserId(1L);
+        verify(projectRepository).findById(existingProject.getId());
     }
 
     @Test
     void testGetProjectWhenProjectIsNoExist() {
         // Arrange
-        when(projectRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        user.setNowProjectId(20L);
+        when(projectRepository.findById(user.getNowProjectId())).thenReturn(Optional.empty());
 
         // Act
         ProjectResponse response = projectService.getProject();
@@ -210,7 +215,7 @@ class ProjectServiceTest {
         // Assert
         assertEquals(ProjectState.NO_EXIST, response.getProjectStateKind());
         assertNull(response.getProjectName());
-        verify(projectRepository).findByUserId(1L);
+        verify(projectRepository).findById(user.getNowProjectId());
     }
 
     @Test

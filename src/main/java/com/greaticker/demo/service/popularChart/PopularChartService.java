@@ -45,9 +45,6 @@ public class PopularChartService {
         User user = userRepository.findById(1L).get();
         List<String> stickerInventoryList = objectMapper.readValue(user.getStickerInventory(), new TypeReference<List<String>>() {});
         stickerResponseList = stickerResponseList.stream().filter(e -> stickerInventoryList.contains(e.getId())).collect(Collectors.toList());
-        for (StickerRankingResponse e : stickerResponseList){
-            System.out.println(e.getId());
-        }
         return new CursorPagination<>(new CursorPaginationMeta(TOTAL_STICKER_CNT, false), stickerResponseList);
     }
 }
