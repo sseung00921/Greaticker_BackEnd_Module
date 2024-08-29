@@ -61,6 +61,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(false, errorMessage, null));
     }
 
+    @ExceptionHandler(DuplicatedNicknameException.class)
+    public ResponseEntity<ApiResponse> handleDuplicatedNicknameException(DuplicatedNicknameException ex, WebRequest request) {
+        String errorMessage = ex.getMessage();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(false, errorMessage, null));
+    }
+
+    @ExceptionHandler(TooShortNicknameException.class)
+    public ResponseEntity<ApiResponse> handleTooShortNicknameException(TooShortNicknameException ex, WebRequest request) {
+        String errorMessage = ex.getMessage();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(false, errorMessage, null));
+    }
+
+    @ExceptionHandler(TooLongNicknameException.class)
+    public ResponseEntity<ApiResponse> handleTooLongNicknameException(TooLongNicknameException ex, WebRequest request) {
+        String errorMessage = ex.getMessage();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(false, errorMessage, null));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         String errorMessage = ex.getMessage();

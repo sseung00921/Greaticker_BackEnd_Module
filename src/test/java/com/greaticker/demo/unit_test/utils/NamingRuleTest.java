@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 class NamingRuleTest {
 
     @Test
@@ -43,6 +45,16 @@ class NamingRuleTest {
                 .isInstanceOf(NotAllowedChracterException.class);
 
         assertThatThrownBy(() -> NamingRule.validateNoSpecialCharacters(invalidInput4))
+                .isInstanceOf(NotAllowedChracterException.class);
+    }
+
+    @Test
+    void testValidateNoSpecialCharactersContainingEvenSpace_ThrowsExceptionOnSpace() {
+        // Arrange
+        String valueWithSpace = "test value";
+
+        // Act & Assert
+        assertThatThrownBy(() -> NamingRule.validateNoSpecialCharactersContainingEvenSpace(valueWithSpace))
                 .isInstanceOf(NotAllowedChracterException.class);
     }
 
