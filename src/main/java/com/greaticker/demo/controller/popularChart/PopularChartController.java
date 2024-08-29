@@ -1,5 +1,6 @@
 package com.greaticker.demo.controller.popularChart;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greaticker.demo.dto.response.common.ApiResponse;
 import com.greaticker.demo.dto.response.common.CursorPagination;
 import com.greaticker.demo.dto.response.sticker.StickerRankingResponse;
@@ -19,7 +20,7 @@ public class PopularChartController {
     final PopularChartService popularChartService;
 
     @GetMapping("/")
-    public ResponseEntity<ApiResponse<CursorPagination<StickerRankingResponse>>> showStickerRanking() {
+    public ResponseEntity<ApiResponse<CursorPagination<StickerRankingResponse>>> showStickerRanking() throws JsonProcessingException {
         CursorPagination<StickerRankingResponse> fetchedData = popularChartService.showStickerRanking();
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, fetchedData));
     }

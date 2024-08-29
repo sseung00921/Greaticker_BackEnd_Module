@@ -1,9 +1,12 @@
 package com.greaticker.demo.intergration_test.service.popularChart;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greaticker.demo.dto.response.common.CursorPagination;
 import com.greaticker.demo.dto.response.sticker.StickerRankingResponse;
 import com.greaticker.demo.model.sticker.Sticker;
+import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.sticker.StickerRepository;
+import com.greaticker.demo.repository.user.UserRepository;
 import com.greaticker.demo.service.popularChart.PopularChartService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.greaticker.demo.constants.StickerCnt.TOTAL_STICKER_CNT;
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,16 +28,25 @@ import static org.mockito.Mockito.when;
 class PopularChartServiceTest {
 
     @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
     private StickerRepository stickerRepository;
 
     @Autowired
     private PopularChartService popularChartService;
 
+    private User user;
     private Sticker sticker1;
     private Sticker sticker2;
 
     @BeforeEach
     void setUp() {
+        user = new User();
+        user.setId(1L);
+        user.setStickerInventory("[]");
+        user.setHitFavoriteList("[]");
+
         sticker1 = new Sticker();
         sticker1.setId(1L);
         sticker1.setName("Sticker 1");
@@ -46,8 +59,10 @@ class PopularChartServiceTest {
     }
 
     @Test
-    void testShowStickerRanking() {
+    void testShowStickerRanking() throws JsonProcessingException {
         // Arrange
+        user.setStickerInventory("[\"1\", \"2\"]");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         List<Sticker> stickers = Arrays.asList(sticker1, sticker2);
         when(stickerRepository.findAllByOrderByHitCntDesc()).thenReturn(stickers);
 
@@ -70,6 +85,30 @@ class PopularChartServiceTest {
         assertEquals(2, rankingResponse2.getRank());
         assertEquals("2", rankingResponse2.getId());
         assertEquals(50, rankingResponse2.getHitCnt());
+    }
+
+    @Test
+    void testHideStickersUserNotHaveInRanking() throws JsonProcessingException {
+        // Arrange
+        user.setStickerInventory("[\"2\"]");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        List<Sticker> stickers = Arrays.asList(sticker1, sticker2);
+        when(stickerRepository.findAllByOrderByHitCntDesc()).thenReturn(stickers);
+
+        // Act
+        CursorPagination<StickerRankingResponse> response = popularChartService.showStickerRanking();
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1, response.getData().size());
+        assertFalse(response.getMeta().isHasMore());
+
+        // Assert rank and details of stickers
+        StickerRankingResponse rankingResponse1 = response.getData().get(0);
+
+        assertEquals(2, rankingResponse1.getRank());
+        assertEquals("2", rankingResponse1.getId());
+        assertEquals(50, rankingResponse1.getHitCnt());
     }
 }
 
