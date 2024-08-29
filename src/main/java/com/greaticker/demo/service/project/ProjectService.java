@@ -62,7 +62,7 @@ public class ProjectService {
             user.setStickerInventory(updatedStickerInventoryStr);
             user.setLastGet(LocalDateTime.now());
 
-            Optional<Project> fetchedData = projectRepository.findByUserId(user.getId());
+            Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
             if (fetchedData.isEmpty()) {
                 throw new RuntimeException("Project cannot Be null Since Someone pushed Get Sticker Button Which is Shown when project is in Progress");
             }
@@ -108,8 +108,6 @@ public class ProjectService {
         } else if (prevState == ProjectState.COMPLETED && nextState == ProjectState.IN_PROGRESS){
             Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
             if (fetchedData.isEmpty()) throw new RuntimeException("Fetched Project Cannot Be Empty Since prevState is Completed");
-            Project fetchedProject = fetchedData.get();
-            projectRepository.delete(fetchedProject);
             String requestedProjectName = projectRequest.getProjectName();
             checkNamingRule(requestedProjectName);
             Project newProject = projectRepository.save(new Project(null, ProjectState.IN_PROGRESS, requestedProjectName, LocalDateTime.now(), 0, user));
@@ -125,8 +123,8 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectResponse getProject() {
-        Long user_id = 1L; //추후 여기서 Redis에서 유저정보를 가져오게 수정할 거임
-        Optional<Project> fetchedData = projectRepository.findByUserId(user_id);
+        User user = userRepository.findById(1L).get(); //추후 여기서 Redis에서 유저정보를 가져오게 수정할 거임
+        Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
         return fetchedData.map(ProjectResponse::fromEntity)
                 .orElseGet(() -> new ProjectResponse(ProjectState.NO_EXIST, null, null, null));
     }
