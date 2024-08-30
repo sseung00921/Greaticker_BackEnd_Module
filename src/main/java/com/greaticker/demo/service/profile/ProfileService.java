@@ -38,6 +38,7 @@ public class ProfileService {
 
     private void checkNamingRule(String requestedNickname) {
         NamingRule.validateNoSpecialCharactersContainingEvenSpace(requestedNickname);
+        NamingRule.validateNoStartWithGuest(requestedNickname);
         if (NamingRule.calculateLength(requestedNickname) > NICKNAME_LENGTH_LIMIT) {
             throw new TooLongNicknameException(TOO_LONG_NICKNAME);
         } else if (NamingRule.calculateLength(requestedNickname) < NICKNAME_LENGTH_UNDER_LIMIT) {
