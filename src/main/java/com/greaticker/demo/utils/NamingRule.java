@@ -18,6 +18,12 @@ public class NamingRule {
         }
     }
 
+    public static void validateNoStartWithGuest(String value) {
+        if (value.startsWith("Guest")) {
+            throw new NotAllowedChracterException(NOT_ALLOWED_CHARACTER);
+        }
+    }
+
     public static int calculateLength(String value) {
         int length = 0;
         for (char c : value.toCharArray()) {
