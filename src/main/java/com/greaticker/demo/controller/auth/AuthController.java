@@ -5,20 +5,26 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
+import com.greaticker.demo.config.securityConfig.CustomUserDetailsService;
 import com.greaticker.demo.dto.response.auth.LoginResponse;
 import com.greaticker.demo.dto.response.auth.UserResponse;
 import com.greaticker.demo.dto.response.common.ApiResponse;
 import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.user.UserRepository;
+import com.greaticker.demo.service.user.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
@@ -36,61 +42,34 @@ import static com.greaticker.demo.constants.auth.Auth.GOOGLE_OAUTH2_IOS_CLIENT_I
 
 @RestController
 @RequestMapping("/auth")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthController {
 
-    private UserRepository userRepository;
+    private final UserService userService;
+    private final UserRepository userRepository;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    @Value("my.app.secret-key") private String secretKey;
+    @Value("${my.app.secret-key}") private String secretKey;
 
     @GetMapping("/get-me")
     public ResponseEntity<ApiResponse<UserResponse>> getMe(@RequestHeader("Authorization") String authHeader) throws GeneralSecurityException, IOException {
-        String jwtToken = extractTokenFromAuthHeader(authHeader);
-        try {
-            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
-            // JWT 토큰을 파싱하고 유저 정보 추출
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(jwtToken)
-                    .getBody();
-
-            // 유저 정보 추출 (예: 사용자 ID 또는 이메일)
-            String userId = claims.getSubject(); // 토큰의 서브젝트에서 유저 ID 추출
-
-            Optional<User> checkIfUserExist = userRepository.findById(Long.valueOf(userId));
-            if (checkIfUserExist.isPresent()) {
-                User user = checkIfUserExist.get();
-                // LoginResponse 객체 생성 (필요한 유저 정보 포함)
-                UserResponse userResponse = new UserResponse();
-                userResponse.setId(userId);
-                userResponse.setNickname(user.getNickname());
-
-                // ApiResponse를 성공 상태로 반환
-                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, userResponse));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(false, "Get Me was failed. It might be Invalid or expired JWT token.", null));
-            }
-        } catch (SignatureException e) {
-            // 토큰 검증 실패 시 처리
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponse<>(false, "Get Me was failed. It might be Invalid or expired JWT token.", null));
-        }
+        User user = userService.getCurrentUser();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, UserResponse.fromEntity(user)));
     }
 
     @PostMapping("/google")
     public ResponseEntity<ApiResponse<LoginResponse>> authenticateGoogleUser(@RequestHeader("Authorization") String authHeader,
                                                                              @RequestHeader("X-Platform") String platForm) throws GeneralSecurityException, IOException {
         String googleIdToken = extractTokenFromAuthHeader(authHeader);
-
         GoogleIdToken.Payload payload = verifyGoogleToken(googleIdToken, platForm);
 
         if (payload == null) {
-            throw new RuntimeException("Payload is null. Token might be Invalid.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(false, "Payload is null. Token might be Invalid.", null));
         }
 
         String googleId = payload.getSubject();
+        String googleEmail = payload.getEmail();
 
         // 데이터베이스에서 사용자를 찾습니다.
         Optional<User> existingUser = userRepository.findByAuthId(googleId);
@@ -101,10 +80,12 @@ public class AuthController {
         } else {
             // 사용자가 없다면 새로운 사용자 등록
             long registeredUserCnt = userRepository.count();
-
             user = new User();
             user.setAuthId(googleId);
-            user.setNickname("Guest" + registeredUserCnt);
+            user.setAuthEmail(googleEmail);
+            user.setNickname("User" + registeredUserCnt);
+            user.setStickerInventory("[]");
+            user.setHitFavoriteList("[]");
             userRepository.save(user);
         }
 
@@ -146,14 +127,35 @@ public class AuthController {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime);
 
-        Key key = new SecretKeySpec(Base64.getDecoder().decode(secretKey), SignatureAlgorithm.HS256.getJcaName());
+        Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey)); // Base64 디코딩된 비밀 키 사용
 
-        return Jwts.builder()
-                .setSubject(user.getAuthId()) // 토큰의 주체 설정 (일반적으로 사용자 ID)
-                .claim("nickname", user.getNickname()) // 추가 클레임 (필요한 정보를 추가)
-                .setIssuedAt(now) // 토큰 발행 시간
-                .setExpiration(expiryDate) // 만료 시간
-                .signWith(key, SignatureAlgorithm.HS512) // 서명 알고리즘 및 비밀 키
+        String token = Jwts.builder()
+                .setSubject(user.getAuthId())
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
+
+
+        authenticateUser(user.getAuthId());
+
+        return token;
+    }
+
+    private void authenticateUser(String authId) {
+        // UserDetailsService를 통해 사용자 정보 로드
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(authId);
+
+        // 사용자 인증 객체 생성
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails, // 사용자 정보 객체
+                        null, // 자격 증명 (JWT 토큰은 이미 검증되었으므로 null로 설정)
+                        userDetails.getAuthorities() // 사용자 권한 목록
+                );
+
+
+        // SecurityContext에 인증 객체 설정
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 }

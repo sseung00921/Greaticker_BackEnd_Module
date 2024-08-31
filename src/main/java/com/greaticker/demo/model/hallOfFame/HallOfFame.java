@@ -32,7 +32,7 @@ public class HallOfFame extends BaseEntity implements Serializable {
     private Integer hitCnt;
 
     @Column(name = "show_auth_id", nullable = false)
-    private Integer showAuthId;
+    private Integer showAuthEmail;
 
 
     public void plusHitCnt() {

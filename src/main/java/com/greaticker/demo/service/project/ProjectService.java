@@ -17,6 +17,7 @@ import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.history.HistoryRepository;
 import com.greaticker.demo.repository.project.ProjectRepository;
 import com.greaticker.demo.repository.user.UserRepository;
+import com.greaticker.demo.service.user.UserService;
 import com.greaticker.demo.utils.NamingRule;
 import com.greaticker.demo.utils.StringConverter;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +44,11 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final HistoryRepository historyRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ObjectMapper objectMapper;
 
     public String getNewSticker() throws JsonProcessingException {
-        User user = userRepository.findById(1L).get();
+        User user = userService.getCurrentUser();
 
         LocalDate lastStickerGotDay = user.getLastGet() == null ? LocalDate.EPOCH: user.getLastGet().toLocalDate();
         LocalDate today = LocalDateTime.now().toLocalDate();
@@ -76,7 +77,7 @@ public class ProjectService {
     }
 
     public String updateProject(ProjectRequest projectRequest) {
-        User user = userRepository.findById(1L).get();//추후 여기서 Redis에서 유저정보를 가져오게 수정할 거임
+        User user = userService.getCurrentUser();
 
         ProjectState prevState = projectRequest.getPrevProjectState();
         ProjectState nextState = projectRequest.getNextProjectState();
@@ -123,10 +124,13 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectResponse getProject() {
-        User user = userRepository.findById(1L).get(); //추후 여기서 Redis에서 유저정보를 가져오게 수정할 거임
+        User user = userService.getCurrentUser(); //추후 여기서 Redis에서 유저정보를 가져오게 수정할 거임
+        if (user.getNowProjectId() == null) {
+            return new ProjectResponse(ProjectState.NO_EXIST, null, null, null);
+        }
         Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
         return fetchedData.map(ProjectResponse::fromEntity)
-                .orElseGet(() -> new ProjectResponse(ProjectState.NO_EXIST, null, null, null));
+                .orElseThrow(() -> new RuntimeException("user can not have nowProjectId which dose not exist in db project table"));
     }
 
 

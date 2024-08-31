@@ -17,26 +17,25 @@ import com.greaticker.demo.repository.project.ProjectRepository;
 import com.greaticker.demo.repository.relationShip.userHallOfFameHitCntRelationship.UserHallOfFameHitCntRelationShipRepository;
 import com.greaticker.demo.repository.user.UserRepository;
 import com.greaticker.demo.service.hallOfFame.HallOfFameService;
+import com.greaticker.demo.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.*;
 
-import static com.greaticker.demo.constants.pagination.PaginationConstant.DEFAULT_FETCH_COUNT;
-import static com.greaticker.demo.exception.errorCode.ErrorCode.DUPLICATED_HALL_OF_FAME;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class HallOfFameServiceTest {
 
     @MockBean
-    private UserRepository userRepository;
+    private UserService userService;
 
     @MockBean
     private ProjectRepository projectRepository;
@@ -74,10 +73,10 @@ class HallOfFameServiceTest {
     @Test
     void testShowHallOfFame() throws IllegalAccessException {
         // Arrange
-        hallOfFame.setShowAuthId(1);
+        hallOfFame.setShowAuthEmail(1);
         PaginationParam paginationParam = new PaginationParam();
         List<HallOfFame> hallOfFameList = Arrays.asList(hallOfFame);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(hallOfFameRepository.findHallOfFameAfter(paginationParam)).thenReturn(hallOfFameList);
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(userHallOfFameHitCntRelationShipRepository.findByUserAndHallOfFame(user, hallOfFame)).thenReturn(Optional.empty());
@@ -96,9 +95,9 @@ class HallOfFameServiceTest {
     void testRegisterHallOfFameSuccess() {
         // Arrange
         HallOfFameRegisterRequest request = new HallOfFameRegisterRequest();
-        request.setShowAuthId(true);
+        request.setShowAuthEmail(true);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(hallOfFameRepository.findByProjectId(1L)).thenReturn(Optional.empty());
         when(hallOfFameRepository.save(any(HallOfFame.class))).thenReturn(hallOfFame);
 
@@ -114,7 +113,7 @@ class HallOfFameServiceTest {
     void testRegisterHallOfFameDuplicate() {
         // Arrange
         HallOfFameRegisterRequest request = new HallOfFameRegisterRequest();
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(hallOfFameRepository.findByProjectId(1L)).thenReturn(Optional.of(hallOfFame));
 
         // Act & Assert
@@ -126,7 +125,7 @@ class HallOfFameServiceTest {
         // Arrange
         HallOfFameDeleteRequest request = new HallOfFameDeleteRequest();
         request.setHallOfFameId("1");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(hallOfFameRepository.findById(1L)).thenReturn(Optional.of(hallOfFame));
 
         // Act
@@ -142,7 +141,7 @@ class HallOfFameServiceTest {
         // Arrange
         HallOfFameDeleteRequest request = new HallOfFameDeleteRequest();
         request.setHallOfFameId("1");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(hallOfFameRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -155,7 +154,7 @@ class HallOfFameServiceTest {
         HitGoodToProjectRequest request = new HitGoodToProjectRequest();
         request.setHallOfFameId("1");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(hallOfFameRepository.findById(1L)).thenReturn(Optional.of(hallOfFame));
         when(userHallOfFameHitCntRelationShipRepository.findByUserAndHallOfFame(user, hallOfFame)).thenReturn(Optional.empty());
 
@@ -176,7 +175,7 @@ class HallOfFameServiceTest {
         hallOfFame.setHitCnt(1);
 
         UserHallOfFameHitCntRelationship existingRelationship = new UserHallOfFameHitCntRelationship();
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(hallOfFameRepository.findById(1L)).thenReturn(Optional.of(hallOfFame));
         when(userHallOfFameHitCntRelationShipRepository.findByUserAndHallOfFame(user, hallOfFame)).thenReturn(Optional.of(existingRelationship));
 
@@ -194,7 +193,7 @@ class HallOfFameServiceTest {
         // Arrange
         HitGoodToProjectRequest request = new HitGoodToProjectRequest();
         request.setHallOfFameId("1");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(hallOfFameRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert

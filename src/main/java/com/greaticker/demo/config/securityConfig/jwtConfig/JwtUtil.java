@@ -8,13 +8,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
 @Component
 public class JwtUtil {
 
-    @Value("my.app.secret-key") private String secretKey;
+    @Value("${my.app.secret-key}") private String secretKey;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -26,7 +27,7 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey)); // 동일한 키 생성 방식 사용
 
         return Jwts.parserBuilder()
                 .setSigningKey(key)

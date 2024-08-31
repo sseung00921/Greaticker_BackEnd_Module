@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -19,6 +20,7 @@ public class ExceptionHandlerTest {
     private MockMvc mockMvc;
 
     @Test
+    @WithMockUser(username = "testuser", roles = {"USER"})
     void testHandleIllegalArgumentException() throws Exception {
         // This endpoint is expected to throw IllegalArgumentException
         mockMvc.perform(MockMvcRequestBuilders.get("/no-exist-path")

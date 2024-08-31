@@ -19,7 +19,7 @@ public class NamingRule {
     }
 
     public static void validateNoStartWithGuest(String value) {
-        if (value.startsWith("Guest")) {
+        if (value.startsWith("User")) {
             throw new NotAllowedChracterException(NOT_ALLOWED_CHARACTER);
         }
     }

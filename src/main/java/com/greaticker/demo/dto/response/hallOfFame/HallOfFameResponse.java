@@ -22,7 +22,7 @@ public class HallOfFameResponse {
     // 유저 닉네임
     private String userNickName;
     // 유저 auth ID
-    private String userAuthId;
+    private String userAuthEmail;
     // 달성한 목표
     private String accomplishedGoal;
     // 좋아요 횟수
@@ -36,8 +36,8 @@ public class HallOfFameResponse {
 
     public static HallOfFameResponse fromEntity(HallOfFame entity, String projectName, boolean isWrittenByMe, boolean isHitGoodByMe) {
         User user = entity.getUser();
-        String authId = entity.getShowAuthId() == 1 ? user.getAuthId() : null;
+        String authEmail = entity.getShowAuthEmail() == 1 ? user.getAuthEmail() : null;
         return new HallOfFameResponse(StringConverter.longToStringConvert(entity.getId()), user.getNickname(),
-                authId, projectName, entity.getHitCnt(), isWrittenByMe, isHitGoodByMe, entity.getCreatedDateTime(), entity.getUpdatedDateTime());
+                authEmail, projectName, entity.getHitCnt(), isWrittenByMe, isHitGoodByMe, entity.getCreatedDateTime(), entity.getUpdatedDateTime());
     }
 }

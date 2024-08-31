@@ -24,7 +24,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/auth**").permitAll() // 로그인, 회원가입 등 인증 불필요 경로
+                                .requestMatchers("/auth/get-me").authenticated()
+                                .requestMatchers("/auth/**").permitAll() // 로그인, 회원가입 등 인증 불필요 경로
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement ->
