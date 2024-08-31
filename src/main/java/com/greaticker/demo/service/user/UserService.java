@@ -1,6 +1,7 @@
 package com.greaticker.demo.service.user;
 
 import com.greaticker.demo.config.securityConfig.CustomUserDetailsService;
+import com.greaticker.demo.dto.response.auth.UserResponse;
 import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -32,5 +33,17 @@ public class UserService {
             }
         }
         throw new RuntimeException("pass jwt Token Security Context is Empty. this might not occur but just remain console log");
+    }
+
+    public UserResponse getCurrentUserResponse() {
+        User user = getCurrentUser();
+        return UserResponse.fromEntity(user);
+    }
+
+    public UserResponse deleteAccount() {
+        User deletedUser = getCurrentUser();
+        UserResponse deletedUserResponse = UserResponse.fromEntity(deletedUser);
+        userRepository.delete(deletedUser);
+        return deletedUserResponse;
     }
 }
