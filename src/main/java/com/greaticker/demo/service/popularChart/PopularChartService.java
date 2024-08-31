@@ -10,6 +10,7 @@ import com.greaticker.demo.model.sticker.Sticker;
 import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.sticker.StickerRepository;
 import com.greaticker.demo.repository.user.UserRepository;
+import com.greaticker.demo.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ import static com.greaticker.demo.constants.StickerCnt.TOTAL_STICKER_CNT;
 @RequiredArgsConstructor
 public class PopularChartService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final StickerRepository stickerRepository;
     private final ObjectMapper objectMapper;
 
@@ -42,7 +43,7 @@ public class PopularChartService {
                 })
                 .toList();
 
-        User user = userRepository.findById(1L).get();
+        User user = userService.getCurrentUser();
         List<String> stickerInventoryList = objectMapper.readValue(user.getStickerInventory(), new TypeReference<List<String>>() {});
         stickerResponseList = stickerResponseList.stream().filter(e -> stickerInventoryList.contains(e.getId())).collect(Collectors.toList());
         return new CursorPagination<>(new CursorPaginationMeta(TOTAL_STICKER_CNT, false), stickerResponseList);

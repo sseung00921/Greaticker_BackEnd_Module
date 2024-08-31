@@ -6,6 +6,7 @@ import com.greaticker.demo.dto.response.profile.ProfileResponse;
 import com.greaticker.demo.exception.customException.*;
 import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.user.UserRepository;
+import com.greaticker.demo.service.user.UserService;
 import com.greaticker.demo.utils.NamingRule;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,11 @@ import static com.greaticker.demo.exception.errorCode.ErrorCode.*;
 @AllArgsConstructor
 public class ProfileService {
 
+    final UserService userService;
     final UserRepository userRepository;
 
     public ChangeNicknameResultResponse changeNickname(ChangeNicknameRequest changeNicknameRequest) {
-        User user = userRepository.findById(1L).get();
+        User user = userService.getCurrentUser();
         String requestedNewNickname = changeNicknameRequest.getNewNickname();
         Optional<User> checkIfTheNicknameExist = userRepository.findByNickname(requestedNewNickname);
         if (checkIfTheNicknameExist.isPresent()) {
@@ -47,7 +49,7 @@ public class ProfileService {
     }
 
     public ProfileResponse getProfile() {
-        User user = userRepository.findById(1L).get();
+        User user = userService.getCurrentUser();
         return ProfileResponse.fromEntity(user);
     }
 }

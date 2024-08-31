@@ -14,6 +14,7 @@ import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.sticker.StickerRepository;
 import com.greaticker.demo.repository.user.UserRepository;
 import com.greaticker.demo.service.diary.DiaryService;
+import com.greaticker.demo.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.when;
 class DiaryServiceTest {
 
     @MockBean
-    private UserRepository userRepository;
+    private UserService userService;
 
     @MockBean
     private StickerRepository stickerRepository;
@@ -65,14 +66,14 @@ class DiaryServiceTest {
     @Test
     void testGetDiaryModel() throws JsonProcessingException {
         // Arrange
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         // Act
         DiaryResponse response = diaryService.getDiaryModel();
 
         // Assert
         assertNotNull(response);
-        verify(userRepository).findById(1L);
+        verify(userService).getCurrentUser();
     }
 
     @Test
@@ -80,21 +81,21 @@ class DiaryServiceTest {
         // Arrange
         DiaryRequest diaryRequest = new DiaryRequest();
         diaryRequest.setStickerInventory(Collections.singletonList("1"));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         // Act
         diaryService.updateDiaryModel(diaryRequest);
 
         // Assert
         assertEquals("[\"1\"]", user.getStickerInventory());
-        verify(userRepository).findById(1L);
+        verify(userService).getCurrentUser();
     }
 
     @Test
     void testHitFavoriteSuccess() throws JsonProcessingException, IllegalAccessException {
         // Arrange
         user.setStickerInventory("[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\", \"13\", \"14\", \"15\", \"16\", \"17\", \"18\", \"19\", \"20\", \"21\", \"22\", \"23\", \"24\"]");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(stickerRepository.findById(1L)).thenReturn(Optional.of(sticker));
 
         HitFavoriteToStickerRequest request = new HitFavoriteToStickerRequest();
@@ -120,7 +121,7 @@ class DiaryServiceTest {
         favoriteSet.add("1");
         user.setHitFavoriteList(objectMapper.writeValueAsString(favoriteSet));
         sticker.setHitCnt(1);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(stickerRepository.findById(1L)).thenReturn(Optional.of(sticker));
 
         HitFavoriteToStickerRequest request = new HitFavoriteToStickerRequest();
@@ -141,7 +142,7 @@ class DiaryServiceTest {
     void testHitFavoriteBeforeGotAllSticker() throws JsonProcessingException {
         // Arrange
         user.setStickerInventory("[]");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         HitFavoriteToStickerRequest request = new HitFavoriteToStickerRequest();
         request.setStickerId("1");
@@ -160,7 +161,7 @@ class DiaryServiceTest {
         }
         user.setHitFavoriteList(objectMapper.writeValueAsString(favoriteSet));
         sticker.setId(99L);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(stickerRepository.findById(99L)).thenReturn(Optional.of(sticker));
 
         HitFavoriteToStickerRequest request = new HitFavoriteToStickerRequest();

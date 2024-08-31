@@ -16,6 +16,7 @@ import com.greaticker.demo.repository.history.HistoryRepository;
 import com.greaticker.demo.repository.project.ProjectRepository;
 import com.greaticker.demo.repository.user.UserRepository;
 import com.greaticker.demo.service.project.ProjectService;
+import com.greaticker.demo.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ class ProjectServiceTest {
     private HistoryRepository historyRepository;
 
     @MockBean
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -69,7 +70,7 @@ class ProjectServiceTest {
         // Arrange
         user.setLastGet(LocalDateTime.now().minusDays(1));
         user.setNowProjectId(20L);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         Project project = new Project();
         project.setId(1L);
@@ -82,7 +83,7 @@ class ProjectServiceTest {
 
         // Assert
         assertNotNull(gotStickerId);
-        verify(userRepository).findById(1L);
+        verify(userService).getCurrentUser();
         verify(historyRepository).save(any(History.class));
     }
 
@@ -90,7 +91,7 @@ class ProjectServiceTest {
     void testGetNewStickerAlreadyGotToday() {
         // Arrange
         user.setLastGet(LocalDateTime.now());
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         // Act & Assert
         assertThrows(TodayStickerAlreadyGotException.class, () -> projectService.getNewSticker());
@@ -104,7 +105,7 @@ class ProjectServiceTest {
         request.setNextProjectState(ProjectState.IN_PROGRESS);
         request.setProjectName("New Project");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         Project newProject = new Project();
         newProject.setId(1L);
@@ -128,7 +129,7 @@ class ProjectServiceTest {
         request.setPrevProjectState(ProjectState.IN_PROGRESS);
         request.setNextProjectState(ProjectState.COMPLETED);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         Project existingProject = new Project();
         existingProject.setId(1L);
@@ -152,7 +153,7 @@ class ProjectServiceTest {
         request.setPrevProjectState(ProjectState.IN_PROGRESS);
         request.setNextProjectState(ProjectState.NO_EXIST);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         Project existingProject = new Project();
         existingProject.setId(1L);
@@ -176,7 +177,7 @@ class ProjectServiceTest {
         request.setPrevProjectState(ProjectState.NO_EXIST);
         request.setNextProjectState(ProjectState.COMPLETED);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         // Act & Assert
         assertThrows(NoSupportedProjectStateChangeException.class, () -> projectService.updateProject(request));
@@ -186,7 +187,7 @@ class ProjectServiceTest {
     void testGetProject() {
         // Arrange
         user.setNowProjectId(20L);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         Project existingProject = new Project();
         existingProject.setId(20L);
         existingProject.setName("Existing Project");
@@ -205,9 +206,8 @@ class ProjectServiceTest {
     @Test
     void testGetProjectWhenProjectIsNoExist() {
         // Arrange
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        user.setNowProjectId(20L);
-        when(projectRepository.findById(user.getNowProjectId())).thenReturn(Optional.empty());
+        user.setNowProjectId(null);
+        when(userService.getCurrentUser()).thenReturn(user);
 
         // Act
         ProjectResponse response = projectService.getProject();
@@ -215,13 +215,12 @@ class ProjectServiceTest {
         // Assert
         assertEquals(ProjectState.NO_EXIST, response.getProjectStateKind());
         assertNull(response.getProjectName());
-        verify(projectRepository).findById(user.getNowProjectId());
     }
 
     @Test
     void testCheckNamingRuleTooLongName() {
         // Arrange
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         String longName = "A".repeat((PROJECT_NAME_LENGTH_LIMIT/3) + 1);
 
         // Act & Assert
@@ -232,7 +231,7 @@ class ProjectServiceTest {
     @Test
     void testCheckNamingRuleTooShortName() {
         // Arrange
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         String shortName = "A".repeat((PROJECT_NAME_LENGTH_UNDER_LIMIT/3) - 1);
 
         // Act & Assert
@@ -250,7 +249,7 @@ class ProjectServiceTest {
         User userHavingAllSticker = new User();
         userHavingAllSticker.setId(1L);
         userHavingAllSticker.setStickerInventory(fullStickerInventoryStr);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userHavingAllSticker));
+        when(userService.getCurrentUser()).thenReturn(userHavingAllSticker);
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> projectService.getNewSticker());

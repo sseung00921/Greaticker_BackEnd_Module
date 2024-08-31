@@ -8,27 +8,27 @@ import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.sticker.StickerRepository;
 import com.greaticker.demo.repository.user.UserRepository;
 import com.greaticker.demo.service.popularChart.PopularChartService;
+import com.greaticker.demo.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.greaticker.demo.constants.StickerCnt.TOTAL_STICKER_CNT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class PopularChartServiceTest {
 
     @MockBean
-    private UserRepository userRepository;
+    private UserService userService;
 
     @MockBean
     private StickerRepository stickerRepository;
@@ -62,7 +62,7 @@ class PopularChartServiceTest {
     void testShowStickerRanking() throws JsonProcessingException {
         // Arrange
         user.setStickerInventory("[\"1\", \"2\"]");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         List<Sticker> stickers = Arrays.asList(sticker1, sticker2);
         when(stickerRepository.findAllByOrderByHitCntDesc()).thenReturn(stickers);
 
@@ -91,7 +91,7 @@ class PopularChartServiceTest {
     void testHideStickersUserNotHaveInRanking() throws JsonProcessingException {
         // Arrange
         user.setStickerInventory("[\"2\"]");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         List<Sticker> stickers = Arrays.asList(sticker1, sticker2);
         when(stickerRepository.findAllByOrderByHitCntDesc()).thenReturn(stickers);
 

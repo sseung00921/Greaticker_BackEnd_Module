@@ -14,6 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.greaticker.demo.config.securityConfig.jwtConfig.JwtFilterNotAppliedPath.TRY_GOOGLE_AUTH;
+import static com.greaticker.demo.config.securityConfig.jwtConfig.JwtFilterNotAppliedPath.TRY_KAKAO_AUTH;
+
 @Component
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -24,6 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        String requestPath = request.getRequestURI();
+
+        if (requestPath.equals(TRY_GOOGLE_AUTH) || requestPath.equals(TRY_KAKAO_AUTH)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
         String jwtToken = null;
         String username = null;

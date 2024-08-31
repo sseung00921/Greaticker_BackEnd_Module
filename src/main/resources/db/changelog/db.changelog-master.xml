@@ -597,4 +597,16 @@
             <dropColumn tableName="hall_of_fame" columnName="show_auth_id"/>
         </rollback>
     </changeSet>
+
+    <!--User Table에 auth_email 칼럼 추가-->
+    <changeSet id="37" author="sseung00921">
+        <addColumn tableName="users">
+            <column name="auth_email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="users" columnName="auth_email"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

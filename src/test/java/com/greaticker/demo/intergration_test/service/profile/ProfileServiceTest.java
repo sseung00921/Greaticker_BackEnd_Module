@@ -9,6 +9,7 @@ import com.greaticker.demo.exception.customException.TooShortNicknameException;
 import com.greaticker.demo.model.user.User;
 import com.greaticker.demo.repository.user.UserRepository;
 import com.greaticker.demo.service.profile.ProfileService;
+import com.greaticker.demo.service.user.UserService;
 import com.greaticker.demo.utils.NamingRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
@@ -25,7 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class ProfileServiceTest {
+
+    @MockBean
+    private UserService userService;
 
     @MockBean
     private UserRepository userRepository;
@@ -48,7 +54,7 @@ class ProfileServiceTest {
         ChangeNicknameRequest request = new ChangeNicknameRequest();
         request.setNewNickname("NewNickname");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(userRepository.findByNickname("NewNickname")).thenReturn(Optional.empty());
 
         // Act
@@ -57,7 +63,7 @@ class ProfileServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals("NewNickname", response.getNewUserNickname());
-        verify(userRepository).findById(1L);
+        verify(userService).getCurrentUser();
         verify(userRepository).findByNickname("NewNickname");
     }
 
@@ -70,7 +76,7 @@ class ProfileServiceTest {
         User existingUser = new User();
         existingUser.setNickname("ExistingNickname");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
         when(userRepository.findByNickname("ExistingNickname")).thenReturn(Optional.of(existingUser));
 
         // Act & Assert
@@ -84,7 +90,7 @@ class ProfileServiceTest {
         ChangeNicknameRequest request = new ChangeNicknameRequest();
         request.setNewNickname(longNickname);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         // Act & Assert
         assertThrows(TooLongNicknameException.class, () -> profileService.changeNickname(request));
@@ -97,7 +103,7 @@ class ProfileServiceTest {
         ChangeNicknameRequest request = new ChangeNicknameRequest();
         request.setNewNickname(shortNickname);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         // Act & Assert
         assertThrows(TooShortNicknameException.class, () -> profileService.changeNickname(request));
@@ -106,7 +112,7 @@ class ProfileServiceTest {
     @Test
     void testGetProfile() {
         // Arrange
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.getCurrentUser()).thenReturn(user);
 
         // Act
         ProfileResponse response = profileService.getProfile();
@@ -114,6 +120,6 @@ class ProfileServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals("OldNickname", response.getUserNickname());
-        verify(userRepository).findById(1L);
+        verify(userService).getCurrentUser();
     }
 }

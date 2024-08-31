@@ -39,7 +39,7 @@ public class HistoryRepositoryTest {
     public void setUp() {
         // 사용자 및 히스토리 데이터 생성
         user = new User();
-        user.setAuthId("auth001");
+        user.setAuthId("213123421211");
         user.setStickerInventory("[]");
         user.setHitFavoriteList("[]");
         user.setCreatedDateTime(LocalDateTime.of(2024, 8, 24, 10, 0, 0));

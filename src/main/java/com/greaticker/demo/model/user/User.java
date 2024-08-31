@@ -26,6 +26,9 @@ public class User extends BaseEntity implements Serializable {
     @Column(name = "auth_id", nullable = false)
     private String authId;
 
+    @Column(name = "auth_email", nullable = false)
+    private String authEmail;
+
     @Column(name = "sticker_inventory", nullable = false, columnDefinition = "varchar(255) default '[]'")
     private String stickerInventory;
 
