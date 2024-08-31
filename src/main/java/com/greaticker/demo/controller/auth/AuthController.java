@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static com.greaticker.demo.constants.PlatForm.iOS;
+import static com.greaticker.demo.constants.auth.Auth.GOOGLE_OAUTH2_ANDROID_CLIENT_ID;
 import static com.greaticker.demo.constants.auth.Auth.GOOGLE_OAUTH2_IOS_CLIENT_ID;
 
 @RestController
@@ -52,9 +53,9 @@ public class AuthController {
     @Value("${my.app.secret-key}") private String secretKey;
 
     @GetMapping("/get-me")
-    public ResponseEntity<ApiResponse<UserResponse>> getMe(@RequestHeader("Authorization") String authHeader) throws GeneralSecurityException, IOException {
-        User user = userService.getCurrentUser();
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, UserResponse.fromEntity(user)));
+    public ResponseEntity<ApiResponse<UserResponse>> getMe(@RequestHeader("Authorization") String authHeader) {
+        UserResponse nowUserResponse = userService.getCurrentUserResponse();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, nowUserResponse));
     }
 
     @PostMapping("/google")
@@ -96,6 +97,12 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, loginResponse));
     }
 
+    @PostMapping("/delete-account")
+    public ResponseEntity<ApiResponse<UserResponse>> deleteAccount()  {
+        UserResponse deletedUserResponse = userService.deleteAccount();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, deletedUserResponse));
+    }
+
     private static String extractTokenFromAuthHeader(String authHeader) {
         String googleIdToken = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -108,7 +115,7 @@ public class AuthController {
 
     private GoogleIdToken.Payload verifyGoogleToken(String idToken, String platForm) throws GeneralSecurityException, IOException {
         JsonFactory jsonFactory = new GsonFactory();
-        String ClientId = platForm.equals(iOS) ? GOOGLE_OAUTH2_IOS_CLIENT_ID : "otherThingToAdd";
+        String ClientId = platForm.equals(iOS) ? GOOGLE_OAUTH2_IOS_CLIENT_ID : GOOGLE_OAUTH2_ANDROID_CLIENT_ID;
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jsonFactory)
                 .setAudience(Collections.singletonList(ClientId))
