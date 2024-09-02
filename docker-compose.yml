@@ -1,0 +1,25 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: greaticker
+      MYSQL_USER: sseung00921
+      MYSQL_PASSWORD: 1234
+    volumes:
+      - /Users/sangseunglee/Documents/mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: always
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    depends_on:
+      - mysql
+    ports:
+      - "6379:6379"
+    restart: always
+
+
