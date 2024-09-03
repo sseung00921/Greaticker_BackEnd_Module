@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greaticker.demo.constants.enums.project.ProjectState;
 import com.greaticker.demo.dto.request.project.ProjectRequest;
 import com.greaticker.demo.dto.response.project.ProjectResponse;
-import com.greaticker.demo.exception.customException.NoSupportedProjectStateChangeException;
-import com.greaticker.demo.exception.customException.TodayStickerAlreadyGotException;
-import com.greaticker.demo.exception.customException.TooLongProjectNameException;
-import com.greaticker.demo.exception.customException.TooShortProjectNameException;
+import com.greaticker.demo.exception.customException.*;
 import com.greaticker.demo.model.history.History;
 import com.greaticker.demo.model.project.Project;
 import com.greaticker.demo.model.user.User;
@@ -36,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -49,6 +47,9 @@ class ProjectServiceTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private UserRepository userRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -254,4 +255,107 @@ class ProjectServiceTest {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> projectService.getNewSticker());
     }
+
+    @Test
+    void testGetNewStickerAfterProjectReset() {
+        // Arrange
+        user.setLastGet(LocalDateTime.now().minusDays(2)); // Setting the last sticker got day
+        user.setNowProjectId(20L);
+        when(userService.getCurrentUser()).thenReturn(user);
+
+        Project project = new Project();
+        project.setId(user.getNowProjectId());
+        project.setName("Test Project");
+        project.setDay_in_a_row(20);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(projectRepository.findById(user.getNowProjectId())).thenReturn(Optional.of(project));
+
+        // Act & Assert
+        assertThrows(AlreadyResetProjectException.class, () -> projectService.getNewSticker());
+        verify(userService).getCurrentUser();
+        verify(projectRepository).findById(user.getNowProjectId());
+    }
+
+    @Test
+    void testUpdateProjectStateFromResetToInProgress() {
+        // Arrange
+        user.setNowProjectId(20L);
+        ProjectRequest request = new ProjectRequest();
+        request.setPrevProjectState(ProjectState.RESET);
+        request.setNextProjectState(ProjectState.IN_PROGRESS);
+        request.setProjectName("Reset Project");
+
+        when(userService.getCurrentUser()).thenReturn(user);
+
+        Project resetProject = new Project();
+        resetProject.setId(user.getNowProjectId());
+        resetProject.setName("Reset Project");
+        resetProject.setState(ProjectState.RESET);
+        when(projectRepository.findById(user.getNowProjectId())).thenReturn(Optional.of(resetProject));
+
+        // Act
+        String projectId = projectService.updateProject(request);
+
+        // Assert
+        assertEquals("20", projectId);
+        assertEquals(ProjectState.IN_PROGRESS, resetProject.getState());
+        assertNull(user.getLastGet());
+        assertEquals("[]", user.getStickerInventory());
+        verify(projectRepository).findById(user.getNowProjectId());
+    }
+
+    @Test
+    void testProcessRefreshTargetUserWhenProjectIsInProgress() {
+        // Arrange
+        String userIdStr = "1";
+        Long userId = Long.valueOf(userIdStr);
+        User foundUser = new User();
+        foundUser.setId(userId);
+        foundUser.setNowProjectId(1L);
+
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Sample Project");
+        project.setDay_in_a_row(5);
+        project.setState(ProjectState.IN_PROGRESS);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(foundUser));
+        when(projectRepository.findById(foundUser.getNowProjectId())).thenReturn(Optional.of(project));
+
+        // Act
+        projectService.processRefreshTargetUser(userIdStr);
+
+        // Assert
+        assertEquals(ProjectState.RESET, project.getState());
+        verify(historyRepository).save(any(History.class));
+    }
+
+    @Test
+    void testProcessRefreshTargetUserWhenProjectIsAlreadyReset() {
+        // Arrange
+        String userIdStr = "1";
+        Long userId = Long.valueOf(userIdStr);
+        User foundUser = new User();
+        foundUser.setId(userId);
+        foundUser.setNowProjectId(1L);
+
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Sample Project");
+        project.setDay_in_a_row(5);
+        project.setState(ProjectState.RESET);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(foundUser));
+        when(projectRepository.findById(foundUser.getNowProjectId())).thenReturn(Optional.of(project));
+
+        // Act
+        projectService.processRefreshTargetUser(userIdStr);
+
+        // Assert
+        assertEquals(ProjectState.RESET, project.getState());
+        verify(historyRepository, never()).save(any(History.class));
+    }
+
+
+
 }
