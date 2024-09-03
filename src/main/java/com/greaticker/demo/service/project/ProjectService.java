@@ -7,10 +7,7 @@ import com.greaticker.demo.constants.enums.history.HistoryKind;
 import com.greaticker.demo.constants.enums.project.ProjectState;
 import com.greaticker.demo.dto.request.project.ProjectRequest;
 import com.greaticker.demo.dto.response.project.ProjectResponse;
-import com.greaticker.demo.exception.customException.NoSupportedProjectStateChangeException;
-import com.greaticker.demo.exception.customException.TodayStickerAlreadyGotException;
-import com.greaticker.demo.exception.customException.TooLongProjectNameException;
-import com.greaticker.demo.exception.customException.TooShortProjectNameException;
+import com.greaticker.demo.exception.customException.*;
 import com.greaticker.demo.model.history.History;
 import com.greaticker.demo.model.project.Project;
 import com.greaticker.demo.model.user.User;
@@ -44,15 +41,20 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final HistoryRepository historyRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
     public String getNewSticker() throws JsonProcessingException {
         User user = userService.getCurrentUser();
 
-        LocalDate lastStickerGotDay = user.getLastGet() == null ? LocalDate.EPOCH: user.getLastGet().toLocalDate();
+        LocalDate lastStickerGotDay = user.getLastGet() == null ? neverGotStickerBefore() : user.getLastGet().toLocalDate();
         LocalDate today = LocalDateTime.now().toLocalDate();
         if (lastStickerGotDay.isBefore(today)) {
+            if (notFirstStickerGet(lastStickerGotDay) && lastStickerGotDay.isBefore(today.minusDays(1))) {
+                processRefreshTargetUser(StringConverter.longToStringConvert(user.getId()));
+                throw new AlreadyResetProjectException(ALREADY_RESET_PROJECT);
+            }
             String stickerInveotoryStr = user.getStickerInventory();
             List<String> stickerInventoryList = objectMapper.readValue(stickerInveotoryStr, new TypeReference<List<String>>() {
             });
@@ -74,6 +76,14 @@ public class ProjectService {
         } else {
             throw new TodayStickerAlreadyGotException(TODAY_STICKER_ALREADY_GOT);
         }
+    }
+
+    private static boolean notFirstStickerGet(LocalDate lastStickerGotDay) {
+        return !lastStickerGotDay.equals(neverGotStickerBefore());
+    }
+
+    private static LocalDate neverGotStickerBefore() {
+        return LocalDate.EPOCH;
     }
 
     public String updateProject(ProjectRequest projectRequest) {
@@ -117,6 +127,16 @@ public class ProjectService {
             user.setStickerInventory("[]");
             historyRepository.save(new History(null, HistoryKind.START_GOAL, newProject.getName(), newProject.getDay_in_a_row(), null, user));
             return StringConverter.longToStringConvert(newProject.getId());
+        } else if (prevState == ProjectState.RESET && nextState == ProjectState.IN_PROGRESS) {
+            Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
+            if (fetchedData.isEmpty()) throw new RuntimeException("Fetched Project Cannot Be Empty Since It was Reset");
+            Project fetchedProject = fetchedData.get();
+            fetchedProject.setState(ProjectState.IN_PROGRESS);
+            fetchedProject.setStart_date(LocalDateTime.now());
+            fetchedProject.setDay_in_a_row(0);
+            user.setStickerInventory("[]");
+            user.setLastGet(null);
+            return StringConverter.longToStringConvert(fetchedProject.getId());
         } else {
             throw new NoSupportedProjectStateChangeException(NO_SUPPORTED_PROJECT_STATE_CHANGE);
         }
@@ -166,5 +186,23 @@ public class ProjectService {
 
         // 선택된 숫자를 문자열로 변환하여 반환
         return String.valueOf(selectedSticker);
+    }
+
+    public void processRefreshTargetUser(String refreshTargetUserIdStr) {
+        Long refreshTargetUserId = Long.valueOf(refreshTargetUserIdStr);
+        Optional<User> optionalUser = userRepository.findById(refreshTargetUserId);
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("user can not Be empty since it is refresh Target");
+        }
+        User user = optionalUser.get();
+        Optional<Project> optionalProject = projectRepository.findById(user.getNowProjectId());
+        if (optionalProject.isEmpty()) {
+            throw new RuntimeException("project can not Be empty since it is refresh Target");
+        }
+        Project project = optionalProject.get();
+        if (project.getState() != ProjectState.RESET) {
+            project.setState(ProjectState.RESET);
+            historyRepository.save(new History(null, HistoryKind.RESET_GOAL, project.getName(), project.getDay_in_a_row(), null, user));
+        }
     }
 }

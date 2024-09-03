@@ -12,4 +12,5 @@ public class ErrorCode {
     public static final String TODAY_STICKER_ALREADY_GOT = "TODAY_STICKER_ALREADY_GOT";
     public static final String CAN_NOT_HIT_FAVORITE_BEFORE_GOT_ALL_STICKER = "CAN_NOT_HIT_FAVORITE_BEFORE_GOT_ALL_STICKER";
     public static final String OVER_HIT_FAVORITE_LIMIT = "OVER_HIT_FAVORITE_LIMIT";
+    public static final String ALREADY_RESET_PROJECT = "ALREADY_RESET_PROJECT";
 }
