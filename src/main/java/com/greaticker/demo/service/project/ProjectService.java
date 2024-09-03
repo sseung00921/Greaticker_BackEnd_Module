@@ -131,6 +131,7 @@ public class ProjectService {
             Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
             if (fetchedData.isEmpty()) throw new RuntimeException("Fetched Project Cannot Be Empty Since It was Reset");
             Project fetchedProject = fetchedData.get();
+            historyRepository.save(new History(null, HistoryKind.RESET_GOAL, fetchedProject.getName(), fetchedProject.getDay_in_a_row(), null, user));
             fetchedProject.setState(ProjectState.IN_PROGRESS);
             fetchedProject.setStart_date(LocalDateTime.now());
             fetchedProject.setDay_in_a_row(0);
@@ -202,7 +203,6 @@ public class ProjectService {
         Project project = optionalProject.get();
         if (project.getState() != ProjectState.RESET) {
             project.setState(ProjectState.RESET);
-            historyRepository.save(new History(null, HistoryKind.RESET_GOAL, project.getName(), project.getDay_in_a_row(), null, user));
         }
     }
 }

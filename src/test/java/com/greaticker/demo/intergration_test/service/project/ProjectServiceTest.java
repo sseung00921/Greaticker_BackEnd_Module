@@ -301,6 +301,7 @@ class ProjectServiceTest {
         assertEquals(ProjectState.IN_PROGRESS, resetProject.getState());
         assertNull(user.getLastGet());
         assertEquals("[]", user.getStickerInventory());
+        verify(historyRepository).save(any(History.class));
         verify(projectRepository).findById(user.getNowProjectId());
     }
 
@@ -327,7 +328,6 @@ class ProjectServiceTest {
 
         // Assert
         assertEquals(ProjectState.RESET, project.getState());
-        verify(historyRepository).save(any(History.class));
     }
 
     @Test
