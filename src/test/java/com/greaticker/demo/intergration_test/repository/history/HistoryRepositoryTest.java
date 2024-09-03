@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled
+@Transactional
 public class HistoryRepositoryTest {
 
     @Autowired
@@ -40,6 +41,8 @@ public class HistoryRepositoryTest {
         // 사용자 및 히스토리 데이터 생성
         user = new User();
         user.setAuthId("213123421211");
+        user.setAuthEmail("test12345@gmail.com");
+        user.setNickname("testMan");
         user.setStickerInventory("[]");
         user.setHitFavoriteList("[]");
         user.setCreatedDateTime(LocalDateTime.of(2024, 8, 24, 10, 0, 0));
@@ -58,12 +61,6 @@ public class HistoryRepositoryTest {
         }
     }
 
-    @AfterEach
-    public void clearDatabase() {
-        historyRepository.deleteAll();
-        //userRepository.deleteAll();
-    }
-
     @Test
     public void testFindHistoriesAfter() {
         PaginationParam paginationParam = new PaginationParam();
@@ -74,15 +71,15 @@ public class HistoryRepositoryTest {
 
         //hasMore 트릭을 위해서 11개 가져오는 게 맞음
         assertThat(histories).hasSize(11);
-        assertThat(histories.get(0).getProject_name()).isEqualTo("앱 만들기 1");
-        assertThat(histories.get(9).getProject_name()).isEqualTo("앱 만들기 10");
+        assertThat(histories.get(0).getProject_name()).isEqualTo("앱 만들기 15");
+        assertThat(histories.get(9).getProject_name()).isEqualTo("앱 만들기 6");
 
         // 다음 페이지 조회
         paginationParam.setAfter(histories.get(9).getId());
         histories = historyRepository.findHistoriesAfter(user.getId(), paginationParam);
 
         assertThat(histories).hasSize(5); // 남은 5개만 조회
-        assertThat(histories.get(0).getProject_name()).isEqualTo("앱 만들기 11");
-        assertThat(histories.get(4).getProject_name()).isEqualTo("앱 만들기 15");
+        assertThat(histories.get(0).getProject_name()).isEqualTo("앱 만들기 5");
+        assertThat(histories.get(4).getProject_name()).isEqualTo("앱 만들기 1");
     }
 }
