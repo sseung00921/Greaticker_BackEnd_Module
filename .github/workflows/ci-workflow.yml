@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 6. EC2에 SSH로 접속하여 Docker Compose 실행
+      # 6. EC2에 SSH로 접속하여 Docker Compose 실행.
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.4
         with:
