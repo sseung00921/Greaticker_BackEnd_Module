@@ -1,18 +1,4 @@
 services:
-  mysql:
-    image: mysql:latest
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: greaticker
-      MYSQL_USER: sseung00921
-      MYSQL_PASSWORD: 1234
-    volumes:
-      - /Users/sangseunglee/Documents/mysql_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    restart: always
-
   redis:
     image: redis:latest
     container_name: redis
@@ -37,7 +23,7 @@ services:
       - "9092:9092"
       - "9093:9093"
     environment:
-      KAFKA_CREATE_TOPICS: "users_to_refresh_project"
+      KAFKA_CREATE_TOPICS: "users_to_refresh_project,users_to_refresh_project_DLQ"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9093
       KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
@@ -46,5 +32,4 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
-
 

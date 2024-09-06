@@ -26,7 +26,7 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers("/auth/get-me").authenticated()
                                 .requestMatchers("/auth/delete-account").authenticated()
-                                .requestMatchers("/auth/**").permitAll() // 로그인, 회원가입 등 인증 불필요 경로
+                                .requestMatchers("/", "/auth/**").permitAll() // 로그인, 회원가입 등 인증 불필요 경로
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement ->
