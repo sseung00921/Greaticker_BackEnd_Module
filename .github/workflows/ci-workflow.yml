@@ -59,7 +59,7 @@ jobs:
             --port 22 \
             --cidr ${{ steps.ip.outputs.ipv4 }}/32
       - name: Deploy to EC2 via SSH
-        uses: appleboy/ssh-action@v0.1.4
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}  # EC2 호스트
           username: ${{ secrets.EC2_USER }}  # EC2 사용자
