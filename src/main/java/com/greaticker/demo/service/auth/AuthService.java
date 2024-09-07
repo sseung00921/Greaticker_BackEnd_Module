@@ -45,19 +45,16 @@ public class AuthService {
 
     public LoginResponse authenticateGoogleUser(String authHeader, String platForm) throws GeneralSecurityException, IOException {
         String googleIdToken = extractTokenFromAuthHeader(authHeader);
-        System.out.println("bbbbbbbb");
-        System.out.println("googleIdToken");
         GoogleIdToken.Payload payload = verifyGoogleIdToken(googleIdToken, platForm);
 
         if (payload == null) {
             return null;
         }
-        System.out.println("eeeeeeeeee");
+
         String googleId = payload.getSubject();
         String googleEmail = payload.getEmail();
 
         // 데이터베이스에서 사용자를 찾습니다.
-        System.out.println("ffffffffff");
         Optional<User> existingUser = userRepository.findByAuthId(googleId);
         User user;
         if (existingUser.isPresent()) {
@@ -74,11 +71,9 @@ public class AuthService {
             userRepository.save(user);
         }
         // JWT 생성 또는 세션 관리
-        System.out.println("ggggggggg");
         String jwtToken = generateJwtToken(user);
-        System.out.println("kkkkkkkkkk");
+
         LoginResponse loginResponse = new LoginResponse(jwtToken);
-        System.out.println("llllllllll");
         return loginResponse;
     }
 
@@ -118,7 +113,7 @@ public class AuthService {
         Date expiryDate = new Date(now.getTime() + expirationTime);
 
         Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey)); // Base64 디코딩된 비밀 키 사용
-        System.out.println("hhhhhhhhhhh");
+
         String token = Jwts.builder()
                 .setSubject(user.getAuthId())
                 .setIssuedAt(now)
@@ -126,7 +121,6 @@ public class AuthService {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
 
-        System.out.println("jjjjjjjjjjj");
         authenticateUser(user.getAuthId());
 
         return token;
