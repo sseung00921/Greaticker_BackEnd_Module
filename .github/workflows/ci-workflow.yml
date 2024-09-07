@@ -27,10 +27,10 @@ jobs:
       # 2-2 application.yml 치환
       - name: Replace environment variables in application.yml
         run: |
-          sed -i 's/\${{ secrets.DATASOURCE_PASSWORD }}/${{ secrets.DATASOURCE_PASSWORD }}/g' src/main/resources/application.yml
-          sed -i 's/\${{ secrets.DATASOURCE_USERNAME }}/${{ secrets.DATASOURCE_USERNAME }}/g' src/main/resources/application.yml
-          sed -i 's/\${{ secrets.DATASOURCE_URL }}/${{ secrets.DATASOURCE_URL }}/g' src/main/resources/application.yml
-          sed -i 's/\${{ secrets.MY_APP_SECRET_KEY }}/${{ secrets.MY_APP_SECRET_KEY }}/g' src/main/resources/application.yml
+          sed -i 's#${{ secrets.DATASOURCE_PASSWORD }}#'${{ secrets.DATASOURCE_PASSWORD }}'#g' src/main/resources/application.yml
+          sed -i 's#${{ secrets.DATASOURCE_USERNAME }}#'${{ secrets.DATASOURCE_USERNAME }}'#g' src/main/resources/application.yml
+          sed -i 's#${{ secrets.DATASOURCE_URL }}#'${{ secrets.DATASOURCE_URL }}'#g' src/main/resources/application.yml
+          sed -i 's#${{ secrets.MY_APP_SECRET_KEY }}#'${{ secrets.MY_APP_SECRET_KEY }}'#g' src/main/resources/application.yml
 
       # 3. Docker 이미지 빌드
       - name: Build Docker Image
