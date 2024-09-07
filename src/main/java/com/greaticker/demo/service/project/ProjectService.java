@@ -145,11 +145,15 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectResponse getProject() {
-        User user = userService.getCurrentUser(); //추후 여기서 Redis에서 유저정보를 가져오게 수정할 거임
+        System.out.println("bbbbbbbbbbbb");
+        User user = userService.getCurrentUser();
+        System.out.println("cccccccccc");//추후 여기서 Redis에서 유저정보를 가져오게 수정할 거임
         if (user.getNowProjectId() == null) {
             return new ProjectResponse(ProjectState.NO_EXIST, null, null, null);
         }
+        System.out.println("ddddddddddd");
         Optional<Project> fetchedData = projectRepository.findById(user.getNowProjectId());
+        System.out.println("eeeeeeeeeee");
         return fetchedData.map(ProjectResponse::fromEntity)
                 .orElseThrow(() -> new RuntimeException("user can not have nowProjectId which dose not exist in db project table"));
     }

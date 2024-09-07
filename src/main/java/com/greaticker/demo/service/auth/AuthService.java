@@ -93,13 +93,13 @@ public class AuthService {
         JsonFactory jsonFactory = new GsonFactory();
 
         String clientId = platFrom.equals(iOS) ? GOOGLE_OAUTH2_IOS_CLIENT_ID : GOOGLE_OAUTH2_WEB_CLIENT_ID;
-        System.out.println("cccccccccc");
+
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jsonFactory)
                 .setAudience(Collections.singletonList(clientId))
                 .build();
 
         GoogleIdToken googleIdToken = verifier.verify(idToken);
-        System.out.println("dddddddd");
+
         if (googleIdToken != null) {
             return googleIdToken.getPayload();
         } else {

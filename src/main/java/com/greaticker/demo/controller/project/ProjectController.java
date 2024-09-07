@@ -20,7 +20,9 @@ public class ProjectController {
 
     @GetMapping("/project")
     public ResponseEntity<ApiResponse<ProjectResponse>> getProject() {
+        System.out.println("aaaaaaaaaa");
         ProjectResponse fetchedData = projectService.getProject();
+        System.out.println("zzzzzzzzzzz");
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, fetchedData));
     }
 
