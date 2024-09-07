@@ -16,11 +16,14 @@ jobs:
 
       # 2-1 application.yml 치환
       - name: Replace environment variables in application.yml
-        run: |
-          sed -i 's#${{ secrets.DATASOURCE_PASSWORD }}#'${{ secrets.DATASOURCE_PASSWORD }}'#g' src/main/resources/application.yml
-          sed -i 's#${{ secrets.DATASOURCE_USERNAME }}#'${{ secrets.DATASOURCE_USERNAME }}'#g' src/main/resources/application.yml
-          sed -i 's#${{ secrets.DATASOURCE_URL }}#'${{ secrets.DATASOURCE_URL }}'#g' src/main/resources/application.yml
-          sed -i 's#${{ secrets.MY_APP_SECRET_KEY }}#'${{ secrets.MY_APP_SECRET_KEY }}'#g' src/main/resources/application.yml
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ./src/main/resources/application.yml
+        env:
+          spring.datasource.url: ${{ secrets.DATASOURCE_URL }}
+          spring.datasource.username: ${{ secrets.DATASOURCE_USERNAME }}
+          spring.datasource.password: ${{ secrets.DATASOURCE_PASSWORD }}
+          my.app.secret-key: ${{ secrets.MY_APP_SECRET_KEY }}
 
       # 2-2. Gradle 빌드 수행
       - name: Set up JDK 17
