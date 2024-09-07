@@ -36,8 +36,8 @@ out/
 ### VS Code ###
 .vscode/
 
-# 모든 application*.yml 파일을 무시
-application*.yml
-# 그러나 application.yml은 제외 (커밋 대상)
-!application.yml
+## applictaion-*.yml은 미포함
+/src/main/resources/application*
 
+## applictaion.yml은 포함
+!/src/main/resources/application.yml
