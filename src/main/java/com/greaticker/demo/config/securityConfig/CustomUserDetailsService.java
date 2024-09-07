@@ -29,7 +29,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         String redisKey = RedisKeys.USER_DETAIL + authId;
 
         // Redis에서 사용자 정보 우선 조회 캐시 히트시 DB를 별도로 타지 않는다.
+        System.out.println("111111111");
         User user = redisTemplate.opsForValue().get(redisKey);
+        System.out.println("2222222222");
         if (user != null) {
             return getUserDetailsFromUser(user);
         }
