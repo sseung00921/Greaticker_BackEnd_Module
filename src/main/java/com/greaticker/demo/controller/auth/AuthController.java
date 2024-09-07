@@ -34,11 +34,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> authenticateGoogleUser(@RequestHeader("Authorization") String authHeader,
                                                                              @RequestHeader("X-Platform") String platForm) throws GeneralSecurityException, IOException {
 
+        System.out.println("aaaaaaaa");
+
         LoginResponse loginResponse = authService.authenticateGoogleUser(authHeader, platForm);
         if (loginResponse == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(false, "Payload is null. Token might be Invalid.", null));
         }
+        System.out.println("bbbbbbbb");
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, loginResponse));
     }
 
