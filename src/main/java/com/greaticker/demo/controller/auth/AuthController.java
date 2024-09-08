@@ -5,6 +5,8 @@ import com.greaticker.demo.dto.response.auth.UserResponse;
 import com.greaticker.demo.dto.response.common.ApiResponse;
 import com.greaticker.demo.service.auth.AuthService;
 import com.greaticker.demo.service.user.UserService;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.proc.BadJOSEException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.ParseException;
 
 import static com.greaticker.demo.constants.PlatForm.ANDROID;
 import static com.greaticker.demo.constants.PlatForm.iOS;
@@ -32,7 +35,8 @@ public class AuthController {
 
     @PostMapping("/google")
     public ResponseEntity<ApiResponse<LoginResponse>> authenticateGoogleUser(@RequestHeader("Authorization") String authHeader,
-                                                                             @RequestHeader("X-Platform") String platForm) throws GeneralSecurityException, IOException {
+                                                                             @RequestHeader("X-Platform") String platForm) throws GeneralSecurityException, IOException, BadJOSEException, ParseException, JOSEException {
+
 
         LoginResponse loginResponse = authService.authenticateGoogleUser(authHeader, platForm);
         if (loginResponse == null) {

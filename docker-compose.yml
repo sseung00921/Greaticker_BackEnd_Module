@@ -13,13 +13,4 @@ services:
       - "3306:3306"
     restart: always
 
-  redis:
-    image: redis:latest
-    container_name: redis
-    depends_on:
-      - mysql
-    ports:
-      - "6379:6379"
-    restart: always
-
 
