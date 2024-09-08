@@ -16,9 +16,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,16 +29,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.text.ParseException;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Date;
 import java.util.Optional;
 
-import static com.greaticker.demo.constants.PlatForm.iOS;
-import static com.greaticker.demo.constants.auth.Auth.GOOGLE_OAUTH2_IOS_CLIENT_ID;
-import static com.greaticker.demo.constants.auth.Auth.GOOGLE_OAUTH2_WEB_CLIENT_ID;
+import static com.greaticker.demo.constants.auth.Auth.COGNITO_JWK_URL;
 
 @Service
 @Transactional
@@ -54,7 +45,6 @@ public class AuthService {
     @Value("${my.app.secret-key}") private String secretKey;
 
     public LoginResponse authenticateGoogleUser(String authHeader, String platForm) throws GeneralSecurityException, IOException, ParseException, BadJOSEException, JOSEException {
-        final String COGNITO_JWK_URL = "https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_zzXeaAdzU/.well-known/jwks.json";
         String idToken = extractTokenFromAuthHeader(authHeader);
 
         // JWKSet을 수동으로 로드
@@ -65,7 +55,6 @@ public class AuthService {
         ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
         JWSVerificationKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
         jwtProcessor.setJWSKeySelector(keySelector);
-
         // Parse and verify the token
         SignedJWT signedJWT = SignedJWT.parse(idToken);
         JWTClaimsSet claimsSet = jwtProcessor.process(signedJWT, null);

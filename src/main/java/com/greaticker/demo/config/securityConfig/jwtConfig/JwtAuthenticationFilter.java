@@ -1,5 +1,7 @@
 package com.greaticker.demo.config.securityConfig.jwtConfig;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.proc.BadJOSEException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,9 +15,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.ParseException;
 
 import static com.greaticker.demo.config.securityConfig.jwtConfig.JwtFilterNotAppliedPath.TRY_GOOGLE_AUTH;
-import static com.greaticker.demo.config.securityConfig.jwtConfig.JwtFilterNotAppliedPath.TRY_KAKAO_AUTH;
 
 @Component
 @AllArgsConstructor
@@ -29,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String requestPath = request.getRequestURI();
 
-        if (requestPath.equals(TRY_GOOGLE_AUTH) || requestPath.equals(TRY_KAKAO_AUTH)) {
+        if (requestPath.equals(TRY_GOOGLE_AUTH)) {
             chain.doFilter(request, response);
             return;
         }
@@ -40,18 +42,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwtToken = authHeader.substring(7);
-            username = jwtUtil.extractUsername(jwtToken);
+            try {
+                username = jwtUtil.extractUsername(jwtToken);
+            } catch (ParseException | BadJOSEException | JOSEException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.validateToken(jwtToken, userDetails)) {
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            try {
+                if (jwtUtil.validateToken(jwtToken, userDetails)) {
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
 
