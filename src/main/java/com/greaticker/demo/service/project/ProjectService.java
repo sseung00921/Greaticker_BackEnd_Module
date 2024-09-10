@@ -104,6 +104,7 @@ public class ProjectService {
             if (fetchedData.isEmpty()) throw new RuntimeException("Fetched Project Cannot Be Empty Since prevState is In Progess");
             Project fetchedProject = fetchedData.get();
             fetchedProject.setState(projectRequest.getNextProjectState());
+            user.setLastGet(null);
             historyRepository.save(new History(null, HistoryKind.ACCOMPLISH_GOAL, fetchedProject.getName(), fetchedProject.getDay_in_a_row(), null, user));
             return StringConverter.longToStringConvert(fetchedProject.getId());
         } else if (prevState == ProjectState.IN_PROGRESS && nextState == ProjectState.NO_EXIST) {
