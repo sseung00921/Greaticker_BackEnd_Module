@@ -23,7 +23,6 @@ jobs:
           spring.datasource.url: ${{ secrets.DATASOURCE_URL }}
           spring.datasource.username: ${{ secrets.DATASOURCE_USERNAME }}
           spring.datasource.password: ${{ secrets.DATASOURCE_PASSWORD }}
-          my.app.secret-key: ${{ secrets.MY_APP_SECRET_KEY }}
 
       # 2-2. Gradle 빌드 수행
       - name: Set up JDK 17

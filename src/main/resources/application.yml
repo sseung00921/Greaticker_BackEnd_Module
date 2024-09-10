@@ -35,7 +35,3 @@ spring:
 #    properties:
 #      security:
 #        protocol: PLAINTEXT
-
-my:
-  app:
-    secret-key: ${{ secrets.MY_APP_SECRET_KEY }}

@@ -29,8 +29,6 @@ import static com.greaticker.demo.constants.auth.Auth.*;
 @Component
 public class JwtUtil {
 
-    @Value("${my.app.secret-key}") private String secretKey;
-
     public String extractUsername(String token) throws IOException, ParseException, BadJOSEException, JOSEException {
         // JWKSet을 수동으로 로드
         JWKSet jwkSet = loadJWKSet(new URL(COGNITO_JWK_URL));

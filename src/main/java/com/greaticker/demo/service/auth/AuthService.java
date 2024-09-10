@@ -42,8 +42,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final CustomUserDetailsService customUserDetailsService;
 
-    @Value("${my.app.secret-key}") private String secretKey;
-
     public LoginResponse authenticateGoogleUser(String authHeader, String platForm) throws GeneralSecurityException, IOException, ParseException, BadJOSEException, JOSEException {
         String idToken = extractTokenFromAuthHeader(authHeader);
 
