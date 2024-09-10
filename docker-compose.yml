@@ -8,7 +8,8 @@ services:
       MYSQL_USER: sseung00921
       MYSQL_PASSWORD: 1234
     volumes:
-      - /Users/sangseunglee/Documents/mysql_data:/var/lib/mysql
+      - /Users/sangseung/Documents/mysql_data:/var/lib/mysql
+      #- /Volumes/externalssd/DevRoot/Documents/mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
     restart: always
