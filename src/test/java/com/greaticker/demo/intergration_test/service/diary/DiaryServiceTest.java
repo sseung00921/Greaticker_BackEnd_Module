@@ -94,7 +94,7 @@ class DiaryServiceTest {
     @Test
     void testHitFavoriteSuccess() throws JsonProcessingException, IllegalAccessException {
         // Arrange
-        user.setStickerInventory("[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\", \"13\", \"14\", \"15\", \"16\", \"17\", \"18\", \"19\", \"20\", \"21\", \"22\", \"23\", \"24\"]");
+        user.setStickerInventory("[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\", \"13\", \"14\", \"15\", \"16\", \"17\", \"18\", \"19\", \"20\", \"21\", \"22\", \"23\", \"24\", \"25\", \"26\", \"27\", \"28\", \"29\", \"30\"]");
         when(userService.getCurrentUser()).thenReturn(user);
         when(stickerRepository.findById(1L)).thenReturn(Optional.of(sticker));
 
@@ -116,7 +116,7 @@ class DiaryServiceTest {
     @Test
     void testHitFavoriteRemoveFavorite() throws JsonProcessingException, IllegalAccessException {
         // Arrange
-        user.setStickerInventory("[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\", \"13\", \"14\", \"15\", \"16\", \"17\", \"18\", \"19\", \"20\", \"21\", \"22\", \"23\", \"24\"]");
+        user.setStickerInventory("[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\", \"13\", \"14\", \"15\", \"16\", \"17\", \"18\", \"19\", \"20\", \"21\", \"22\", \"23\", \"24\", \"25\", \"26\", \"27\", \"28\", \"29\", \"30\"]");
         Set<String> favoriteSet = new HashSet<>();
         favoriteSet.add("1");
         user.setHitFavoriteList(objectMapper.writeValueAsString(favoriteSet));
@@ -154,7 +154,7 @@ class DiaryServiceTest {
     @Test
     void testHitFavoriteOverLimit() throws JsonProcessingException {
         // Arrange
-        user.setStickerInventory("[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\", \"13\", \"14\", \"15\", \"16\", \"17\", \"18\", \"19\", \"20\", \"21\", \"22\", \"23\", \"24\"]");
+        user.setStickerInventory("[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\", \"13\", \"14\", \"15\", \"16\", \"17\", \"18\", \"19\", \"20\", \"21\", \"22\", \"23\", \"24\", \"25\", \"26\", \"27\", \"28\", \"29\", \"30\"]");
         Set<String> favoriteSet = new HashSet<>();
         for (int i = 1; i <= FAVORITE_LIMIT_CNT; i++) {
             favoriteSet.add(String.valueOf(i));
