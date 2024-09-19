@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.text.ParseException;
@@ -85,16 +86,26 @@ public class AuthService {
         return new LoginResponse(idToken);
     }
 
-    public LoginResponse authenticateAppleUser(String authHeader) {
+    public LoginResponse authenticateAppleUser(String authHeader) throws IOException, ParseException, BadJOSEException, JOSEException {
         String idToken = extractTokenFromAuthHeader(authHeader);
 
-        Claims claims = Jwts.parserBuilder().build().parseClaimsJws(idToken).getBody();
+        // JWKSet을 수동으로 로드
+        JWKSet jwkSet = loadJWKSet(new URL(COGNITO_JWK_URL));
+        JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(jwkSet);
 
-        // Apple ID (사용자 고유 식별자) 추출
-        String appleUserId = claims.getSubject();
+        // Processor configuration
+        ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+        JWSVerificationKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
+        jwtProcessor.setJWSKeySelector(keySelector);
+        // Parse and verify the token
+        SignedJWT signedJWT = SignedJWT.parse(idToken);
+        JWTClaimsSet claimsSet = jwtProcessor.process(signedJWT, null);
+
+        // Extract Apple_id (sub) from claims
+        String auth_id = claimsSet.getSubject();
 
         // 데이터베이스에서 사용자를 찾습니다.
-        Optional<User> existingUser = userRepository.findByAuthId(appleUserId);
+        Optional<User> existingUser = userRepository.findByAuthId(auth_id);
         User user;
         if (existingUser.isPresent()) {
             user = existingUser.get();
@@ -102,7 +113,7 @@ public class AuthService {
             // 사용자가 없다면 새로운 사용자 등록
             long registeredUserCnt = userRepository.count();
             user = new User();
-            user.setAuthId(appleUserId);
+            user.setAuthId(auth_id);
             user.setAuthEmail("None");
             user.setNickname("User" + registeredUserCnt);
             user.setStickerInventory("[]");
