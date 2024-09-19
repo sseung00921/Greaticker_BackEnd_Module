@@ -100,10 +100,8 @@ public class AuthService {
         // Parse and verify the token
         SignedJWT signedJWT = SignedJWT.parse(idToken);
         JWTClaimsSet claimsSet = jwtProcessor.process(signedJWT, null);
-
         // Extract Apple_id (sub) from claims
         String auth_id = claimsSet.getSubject();
-
         // 데이터베이스에서 사용자를 찾습니다.
         Optional<User> existingUser = userRepository.findByAuthId(auth_id);
         User user;
@@ -145,13 +143,16 @@ public class AuthService {
 
 
     private void authenticateUser(String authId) {
+        System.out.println("aaaaaaa");
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(authId);
+        System.out.println("dddddd");
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
                 );
+        System.out.println("eeeeeee");
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 }

@@ -31,13 +31,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 //        if (user != null) {
 //            return getUserDetailsFromUser(user);
 //        }
-
+        System.out.println("bbbbbbb");
         User user = userRepository.findByAuthId(authId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + authId));
 
         // Redis에 사용자 정보 저장
         //redisTemplate.opsForValue().set(redisKey, user, Duration.ofDays(1));
-
+        System.out.println("ccccccc");
         return getUserDetailsFromUser(user);
     }
 
