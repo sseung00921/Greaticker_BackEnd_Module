@@ -42,10 +42,12 @@ public class AuthController {
         } else {
             loginResponse = authService.authenticateGoogleUser(authHeader);
         }
+        System.out.println("cccccccc");
         if (loginResponse == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(false, "Payload is null. Token might be Invalid.", null));
         }
+        System.out.println("ddddddd");
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, loginResponse));
     }
 

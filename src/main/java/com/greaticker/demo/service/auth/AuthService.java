@@ -143,16 +143,15 @@ public class AuthService {
 
 
     private void authenticateUser(String authId) {
-        System.out.println("aaaaaaa");
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(authId);
-        System.out.println("dddddd");
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
                 );
-        System.out.println("eeeeeee");
+        System.out.println("aaaaaaa");
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        System.out.println("bbbbbbb");
     }
 }
