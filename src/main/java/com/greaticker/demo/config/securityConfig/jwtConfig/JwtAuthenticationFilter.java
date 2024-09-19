@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
 
-import static com.greaticker.demo.config.securityConfig.jwtConfig.JwtFilterNotAppliedPath.TRY_GOOGLE_AUTH;
+import static com.greaticker.demo.config.securityConfig.jwtConfig.JwtFilterNotAppliedPath.TRY_OAUTH_LOG_IN;
 
 @Component
 @AllArgsConstructor
@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String requestPath = request.getRequestURI();
 
-        if (requestPath.equals(TRY_GOOGLE_AUTH)) {
+        if (requestPath.equals(TRY_OAUTH_LOG_IN)) {
             chain.doFilter(request, response);
             return;
         }
