@@ -154,20 +154,4 @@ public class AuthService {
                 );
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
-
-    // Apple ID Token 디코딩 메서드
-    private String getEmailFromAppleIdToken(String idToken) {
-        try {
-            // JWT 토큰을 디코딩하고 Claims (페이로드)를 추출
-            Claims claims = Jwts.parserBuilder().build().parseClaimsJws(idToken).getBody();
-
-            // 이메일 추출 (사용자가 이메일 공개를 동의하지 않았으면 null이 반환됨)
-            String email = claims.get("email", String.class);
-
-            return email; // null일 수 있음
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null; // 오류 발생 시 null 반환
-        }
-    }
 }

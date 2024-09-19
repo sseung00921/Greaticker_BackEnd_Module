@@ -33,7 +33,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, nowUserResponse));
     }
 
-    @PostMapping("/google")
+    @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> authenticateGoogleUser(@RequestHeader("Authorization") String authHeader,
                                                                              @RequestHeader("X-Platform") String platForm) throws GeneralSecurityException, IOException, BadJOSEException, ParseException, JOSEException {
         LoginResponse loginResponse = null;
