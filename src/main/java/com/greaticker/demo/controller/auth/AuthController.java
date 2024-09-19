@@ -36,14 +36,16 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<ApiResponse<LoginResponse>> authenticateGoogleUser(@RequestHeader("Authorization") String authHeader,
                                                                              @RequestHeader("X-Platform") String platForm) throws GeneralSecurityException, IOException, BadJOSEException, ParseException, JOSEException {
-
-
-        LoginResponse loginResponse = authService.authenticateGoogleUser(authHeader, platForm);
+        LoginResponse loginResponse = null;
+        if (platForm.equals(iOS)) {
+            loginResponse = authService.authenticateAppleUser(authHeader);
+        } else {
+            loginResponse = authService.authenticateGoogleUser(authHeader);
+        }
         if (loginResponse == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(false, "Payload is null. Token might be Invalid.", null));
         }
-
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, null, loginResponse));
     }
 

@@ -16,6 +16,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,7 +44,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final CustomUserDetailsService customUserDetailsService;
 
-    public LoginResponse authenticateGoogleUser(String authHeader, String platForm) throws GeneralSecurityException, IOException, ParseException, BadJOSEException, JOSEException {
+    public LoginResponse authenticateGoogleUser(String authHeader) throws GeneralSecurityException, IOException, ParseException, BadJOSEException, JOSEException {
         String idToken = extractTokenFromAuthHeader(authHeader);
 
         // JWKSet을 수동으로 로드
@@ -83,6 +85,36 @@ public class AuthService {
         return new LoginResponse(idToken);
     }
 
+    public LoginResponse authenticateAppleUser(String authHeader) {
+        String idToken = extractTokenFromAuthHeader(authHeader);
+
+        Claims claims = Jwts.parserBuilder().build().parseClaimsJws(idToken).getBody();
+
+        // Apple ID (사용자 고유 식별자) 추출
+        String appleUserId = claims.getSubject();
+
+        // 데이터베이스에서 사용자를 찾습니다.
+        Optional<User> existingUser = userRepository.findByAuthId(appleUserId);
+        User user;
+        if (existingUser.isPresent()) {
+            user = existingUser.get();
+        } else {
+            // 사용자가 없다면 새로운 사용자 등록
+            long registeredUserCnt = userRepository.count();
+            user = new User();
+            user.setAuthId(appleUserId);
+            user.setAuthEmail("None");
+            user.setNickname("User" + registeredUserCnt);
+            user.setStickerInventory("[]");
+            user.setHitFavoriteList("[]");
+            userRepository.save(user);
+        }
+
+        authenticateUser(user.getAuthId());
+
+        return new LoginResponse(idToken);
+    }
+
     private JWKSet loadJWKSet(URL url) throws IOException, ParseException {
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
@@ -110,5 +142,21 @@ public class AuthService {
                         userDetails.getAuthorities()
                 );
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+    }
+
+    // Apple ID Token 디코딩 메서드
+    private String getEmailFromAppleIdToken(String idToken) {
+        try {
+            // JWT 토큰을 디코딩하고 Claims (페이로드)를 추출
+            Claims claims = Jwts.parserBuilder().build().parseClaimsJws(idToken).getBody();
+
+            // 이메일 추출 (사용자가 이메일 공개를 동의하지 않았으면 null이 반환됨)
+            String email = claims.get("email", String.class);
+
+            return email; // null일 수 있음
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // 오류 발생 시 null 반환
+        }
     }
 }

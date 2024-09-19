@@ -12,6 +12,5 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HallOfFameRegisterRequest {
-    private String projectId;
     private boolean showAuthEmail;
 }
