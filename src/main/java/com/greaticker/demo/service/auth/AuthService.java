@@ -150,8 +150,6 @@ public class AuthService {
                         null,
                         userDetails.getAuthorities()
                 );
-        System.out.println("aaaaaaa");
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        System.out.println("bbbbbbb");
     }
 }
