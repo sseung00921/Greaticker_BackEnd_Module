@@ -62,7 +62,6 @@ public class AuthService {
 
         // Extract google_id (sub) from claims
         String auth_id = claimsSet.getSubject();
-        String auth_email = (String) claimsSet.getClaim("email");
 
         // 데이터베이스에서 사용자를 찾습니다.
         Optional<User> existingUser = userRepository.findByAuthId(auth_id);
@@ -74,7 +73,7 @@ public class AuthService {
             long registeredUserCnt = userRepository.count();
             user = new User();
             user.setAuthId(auth_id);
-            user.setAuthEmail(auth_email);
+            user.setAuthEmail("None");
             user.setNickname("User" + registeredUserCnt);
             user.setStickerInventory("[]");
             user.setHitFavoriteList("[]");
